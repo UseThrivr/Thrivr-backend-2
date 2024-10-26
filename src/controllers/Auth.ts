@@ -4,6 +4,8 @@ import { Response } from "express";
 const nodemailer = require("nodemailer");
 import bcrypt from "bcryptjs";
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
 
 interface Auth {
   signup: any;
@@ -39,9 +41,16 @@ const sendForgotEmail = async (email: string, name: string) => {
     secretKey,
     { expiresIn: "1h" }
   );
-  console.log('token: ', token, '\nsecretKey: ', secretKey, '\nfrontend url: ', frontendURL);
+  console.log(
+    "token: ",
+    token,
+    "\nsecretKey: ",
+    secretKey,
+    "\nfrontend url: ",
+    frontendURL
+  );
   try {
-    console.log('fjfj');
+    console.log("fjfj");
     const mailOptions = {
       from: "Thrivr <no-reply@thrivr.com>",
       to: email,
@@ -123,9 +132,8 @@ const sendForgotEmail = async (email: string, name: string) => {
     `,
     };
 
-    
     transporter.sendMail(mailOptions, async (error: any, info: any) => {
-        console.log('mailed');
+      console.log("mailed");
       if (error) {
         console.log("error");
       } else {
@@ -243,8 +251,9 @@ const Auth: Auth = {
         res.status(400).json({ error: "Bad request." });
       } else {
         let emailExists = await User.findOne({ where: { email: email } });
+        let businessExists = await Business.findOne({ where: { email: email } });
 
-        if (!emailExists) {
+        if (!emailExists && !businessExists) {
           req.session.user = req.body;
 
           const otp = Math.floor(1000 + Math.random() * 9000);
@@ -273,30 +282,84 @@ const Auth: Auth = {
             code: "INVALID_OTP_ENTERED",
           });
         } else {
-          const { fullname, email, password } = req.session.user;
-          const SALT_ROUNDS = process.env.SALT_ROUNDS as unknown as string;
-          const saltRounds: number = parseInt(SALT_ROUNDS || "10", 10);
-          const enc = await bcrypt.hash(password, saltRounds);
+          let userInfo = req.session.user;
+          if (userInfo.role == "user") {
+            const { fullname, email, password } = userInfo;
+            const SALT_ROUNDS = process.env.SALT_ROUNDS as unknown as string;
+            const saltRounds: number = parseInt(SALT_ROUNDS || "10", 10);
+            const enc = await bcrypt.hash(password, saltRounds);
 
-          User.create({
-            name: fullname,
-            email: email,
-            password: enc,
-          }).then((user) => {
-            if (user) {
-              res.status(201).json({
-                message: "Success",
-                code: "SIGNUP_COMPLETE",
-                details: "Signup completed.",
-              });
-            } else {
-              res.status(500).json({
-                message: "Connection error.",
-                code: "CONNECTION_ERR",
-                details: "Error connecting to database.",
-              });
+            User.create({
+              name: fullname,
+              email: email,
+              password: enc,
+            }).then((user) => {
+              if (user) {
+                res.status(201).json({
+                  message: "Success",
+                  code: "SIGNUP_COMPLETE",
+                  details: "Signup completed.",
+                });
+              } else {
+                res.status(500).json({
+                  message: "Connection error.",
+                  code: "CONNECTION_ERR",
+                  details: "Error connecting to database.",
+                });
+              }
+            });
+          } else if (userInfo.role == "business") {
+            const {
+              name,
+              location,
+              email,
+              phone_number,
+              description,
+              logo,
+              password,
+            } = userInfo;
+            const SALT_ROUNDS = process.env.SALT_ROUNDS as unknown as string;
+            const saltRounds: number = parseInt(SALT_ROUNDS || "10", 10);
+            const enc = await bcrypt.hash(password, saltRounds);
+            let image_path = "";
+
+            if (logo) {
+
             }
-          });
+
+            Business.create({
+              name: name,
+              location: location,
+              email: email,
+              phone_number: phone_number,
+              description: description,
+              password: enc,
+              image_path: image_path
+            }).then((user) => {
+              if (user) {
+                const { password, ...userRef } =
+                  user;
+                req.session.user = userRef;
+                const token = jwt.sign(userRef, process.env.SECRET_KEY, {
+                  expiresIn: "24h",
+                });
+
+                res.status(201).json({
+                  message: "Success",
+                  code: "SIGNUP_COMPLETE",
+                  details: "Signup completed.",
+                  user: userRef, 
+                  token: token
+                });
+              } else {
+                res.status(500).json({
+                  message: "Connection error.",
+                  code: "CONNECTION_ERR",
+                  details: "Error connecting to database.",
+                });
+              }
+            });
+          }
         }
       }
     } catch (error) {
@@ -330,18 +393,21 @@ const Auth: Auth = {
       } else {
         let user = await User.findOne({ where: { email: email } });
 
+        if(!user){
+          user = await Business.findOne({ where: { email: email } });       
+        }
+
         if (!user) {
           res.status(404).json({ error: "Invalid credentials." });
         } else {
           const match = await bcrypt.compare(password, user.password);
           if (match) {
-            const token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
-              expiresIn: "24h",
-            });
-
             const { password, createdAt, updatedAt, ...userRef } =
               user.dataValues;
             req.session.user = userRef;
+            const token = jwt.sign(userRef, process.env.SECRET_KEY, {
+              expiresIn: "24h",
+            });
             return res
               .status(200)
               .json({ success: true, token: token, user: userRef });
@@ -358,34 +424,35 @@ const Auth: Auth = {
   },
   forgotPassword: async (req: Request, res: Response) => {
     try {
-    interface forgotEmailInterface {
-      email: string;
-    }
-    let { email } = req.body as unknown as forgotEmailInterface;
+      interface forgotEmailInterface {
+        email: string;
+      }
+      let { email } = req.body as unknown as forgotEmailInterface;
 
-    if (!email) {
-      res.status(400).json({ error: "Bad request." });
-    } else {
-      let user = await User.findOne({ where: { email: email } });
-      if (!user) {
-        res.status(404).json({ error: "Invalid email." });
+      if (!email) {
+        res.status(400).json({ error: "Bad request." });
       } else {
-        interface user {
-          username: string;
-        }
+        let user = await User.findOne({ where: { email: email } });
+        if (!user) {
+          res.status(404).json({ error: "Invalid email." });
+        } else {
+          interface user {
+            username: string;
+          }
 
-        const { username } = (await User.findOne({
-          where: { email: email },
-        })) as unknown as user;
-        let mail = await sendForgotEmail(email, username);
-        if(mail){
-            res.status(200).json({sucess: true});
-        }
-        else{
-            res.status(500).json({error: 'We are unable to send mail at this time. 😔'})
+          const { username } = (await User.findOne({
+            where: { email: email },
+          })) as unknown as user;
+          let mail = await sendForgotEmail(email, username);
+          if (mail) {
+            res.status(200).json({ sucess: true });
+          } else {
+            res
+              .status(500)
+              .json({ error: "We are unable to send mail at this time. 😔" });
+          }
         }
       }
-    }
     } catch (error) {
       res.status(500).json({ error: "Server error." });
     }
@@ -435,9 +502,17 @@ const Auth: Auth = {
     }
   },
 
-  businessSignup: async (req:Request|any , res:Response) => {
+  businessSignup: async (req: Request | any, res: Response) => {
     try {
-      const { name, location, email, phone_number, description, logo, password } = req.body;
+      const {
+        name,
+        location,
+        email,
+        phone_number,
+        description,
+        logo,
+        password,
+      } = req.body;
 
       if (
         !name ||
@@ -456,13 +531,14 @@ const Auth: Auth = {
         res.status(400).json({ error: "Bad request." });
       } else {
         let emailExists = await User.findOne({ where: { email: email } });
+        let businessExists = await Business.findOne({ where: { email: email } });
 
-        if (!emailExists) {
+        if (!emailExists && !businessExists) {
           req.session.user = req.body;
 
           const otp = Math.floor(1000 + Math.random() * 9000);
           req.session.otp = otp;
-          sendOTP(email, fullname, otp);
+          sendOTP(email, name, otp);
           res.status(200).json({ success: true });
         } else {
           res.status(409).json({ error: "Email already exists." });
@@ -471,7 +547,7 @@ const Auth: Auth = {
     } catch (error) {
       res.status(500).json({ error: "Error." });
     }
-  }
+  },
 };
 
 export default Auth;
