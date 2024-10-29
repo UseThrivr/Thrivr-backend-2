@@ -91,7 +91,7 @@ const Actions: ActionsInterface = {
 
       if (!id) {
         if (user.role != "business") {
-          res.status(401).json({ error: "Unautrhorized access." });
+          res.status(401).json({ error: "Unauthorized access." });
         } else {
           if (!business_id) {
             res.status(400).json({ error: "Bad request." });
@@ -191,9 +191,9 @@ const Actions: ActionsInterface = {
     } else {
       await Business.findOne({ where: { id: id } })
         .then((business) => {
-            const { password, createdAt, updatedAt, ...businessOut } =
-              business?.dataValues;
-            res.status(200).json({success: true, data: businessOut});
+          const { password, createdAt, updatedAt, ...businessOut } =
+            business?.dataValues;
+          res.status(200).json({ success: true, data: businessOut });
         })
         .catch(() => {
           res.status(500).json({ error: "Server error" });

@@ -23,7 +23,6 @@ Business.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
 
     location: {
@@ -38,7 +37,7 @@ Business.init(
     },
 
     phone_number: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
 

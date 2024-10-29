@@ -21,8 +21,7 @@ Orders.init(
         },
         business_id: {
             type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey:true,
+            allowNull: false
         },
         customer_name: {
             type: DataTypes.STRING,

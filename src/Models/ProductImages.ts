@@ -16,7 +16,7 @@ ProductImages.init(
     },
 
     product_id: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
     },
