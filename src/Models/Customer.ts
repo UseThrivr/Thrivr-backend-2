@@ -1,18 +1,17 @@
 import { DataTypes, Model } from "sequelize";
-import ProductImages from "./ProductImages";
 const sequelize = require("./../setup/Sequelize");
 
-class Products extends Model {
+class Customer extends Model {
   public id!: number;
   public name!: string;
-  public price!: string;
-  public category!: string;
-  public description!: string;
+  public email!: string;
+  public phone_number!: string;
+  public group!: string;
+  public instagram!: number;
   public business_id!: number;
-  public amount_left!: number;
 }
 
-Products.init(
+Customer.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -25,56 +24,41 @@ Products.init(
       allowNull: false,
     },
 
-    price: {
+    email: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
 
-    category: {
+    phone_number: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    description: {
+    group: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: 'none'
     },
 
-    purchaseDate: {
+    instagram: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-
-    supplier: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      defaultValue: ''
     },
 
     business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-
-    amount_left: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
+    }
   },
   {
     sequelize,
-    tableName: "products",
+    tableName: "Customer",
   }
 );
 
 sequelize.sync({ alter: true }).then(() => {
-  console.log("Table products created.");
+  console.log("Table Customer created.");
 });
 
-
-Products.hasOne(ProductImages, {
-  foreignKey: 'product_id', // Assuming 'store_id' is used in Settings as a reference to Business
-  sourceKey: 'id',
-});
-
-export default Products;
+export default Customer;

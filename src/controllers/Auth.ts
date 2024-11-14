@@ -3,9 +3,8 @@ import Business from "../Models/Business";
 import { Response } from "express";
 const nodemailer = require("nodemailer");
 import bcrypt from "bcryptjs";
+import Settings from "../Models/storeSettings";
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
-const path = require("path");
 
 interface Auth {
   signup: any;
@@ -254,7 +253,9 @@ const Auth: Auth = {
         let businessExists = await Business.findOne({ where: { email: email } });
 
         if (!emailExists && !businessExists) {
-          req.session.user = req.body;
+          let preUser = req.body;
+          preUser.role = 'user';
+          req.session.user = preUser;
 
           const otp = Math.floor(1000 + Math.random() * 9000);
           req.session.otp = otp;
@@ -295,10 +296,18 @@ const Auth: Auth = {
               password: enc,
             }).then((user) => {
               if (user) {
+                const { password, ...userRef } =
+                  user.dataValues;
+                req.session.user = userRef;
+                const token = jwt.sign(userRef, process.env.SECRET_KEY, {
+                  expiresIn: "24h",
+                });
+
                 res.status(201).json({
                   message: "Success",
                   code: "SIGNUP_COMPLETE",
                   details: "Signup completed.",
+                  token: token
                 });
               } else {
                 res.status(500).json({
@@ -310,25 +319,23 @@ const Auth: Auth = {
             });
           } else if (userInfo.role == "business") {
             const {
-              name,
+              full_name,
+              business_name,
               location,
               email,
               phone_number,
               description,
-              logo,
               password,
+              image_path
             } = userInfo;
             const SALT_ROUNDS = process.env.SALT_ROUNDS as unknown as string;
             const saltRounds: number = parseInt(SALT_ROUNDS || "10", 10);
             const enc = await bcrypt.hash(password, saltRounds);
-            let image_path = "";
 
-            if (logo) {
-
-            }
 
             Business.create({
-              name: name,
+              full_name: full_name,
+              business_name: business_name,
               location: location,
               email: email,
               phone_number: phone_number,
@@ -336,28 +343,35 @@ const Auth: Auth = {
               password: enc,
               image_path: image_path
             }).then((user) => {
-              if (user) {
-                const { password, ...userRef } =
-                  user;
-                req.session.user = userRef;
-                const token = jwt.sign(userRef, process.env.SECRET_KEY, {
-                  expiresIn: "24h",
-                });
+              Settings.create({
+                store_id: user.id
+              }).then((settings) => {
+                if (user && settings) {
+                  const { password, ...userRef } =
+                    user.dataValues;
+                  req.session.user = userRef;
+                  const token = jwt.sign(userRef, process.env.SECRET_KEY, {
+                    expiresIn: "24h",
+                  });
+  
+  
+                  res.status(201).json({
+                    message: "Success",
+                    code: "SIGNUP_COMPLETE",
+                    details: "Signup completed.",
+                    user: userRef,
+                    settings: settings,
+                    token: token
+                  });
+                } else {
+                  res.status(500).json({
+                    message: "Connection error.",
+                    code: "CONNECTION_ERR",
+                    details: "Error connecting to database.",
+                  });
+                }                
+              })
 
-                res.status(201).json({
-                  message: "Success",
-                  code: "SIGNUP_COMPLETE",
-                  details: "Signup completed.",
-                  user: userRef, 
-                  token: token
-                });
-              } else {
-                res.status(500).json({
-                  message: "Connection error.",
-                  code: "CONNECTION_ERR",
-                  details: "Error connecting to database.",
-                });
-              }
             });
           }
         }
@@ -505,23 +519,24 @@ const Auth: Auth = {
   businessSignup: async (req: Request | any, res: Response) => {
     try {
       const {
-        name,
+        full_name,
+        business_name,
         location,
         email,
         phone_number,
         description,
-        logo,
         password,
       } = req.body;
 
       if (
-        !name ||
+        !full_name ||
         !location ||
         !email ||
         !phone_number ||
         !description ||
         !password ||
-        name.length < 1 ||
+        full_name.length < 1 ||
+        business_name.length < 1 ||
         location.length < 1 ||
         email.length < 1 ||
         phone_number.length < 1 ||
@@ -534,11 +549,16 @@ const Auth: Auth = {
         let businessExists = await Business.findOne({ where: { email: email } });
 
         if (!emailExists && !businessExists) {
-          req.session.user = req.body;
+          let preUser = req.body;
+          preUser.role = 'business';
+          if ((req as any).file) {
+            preUser.image_path = (req as any).file.location; 
+          }
+          req.session.user = preUser;
 
           const otp = Math.floor(1000 + Math.random() * 9000);
           req.session.otp = otp;
-          sendOTP(email, name, otp);
+          sendOTP(email, full_name, otp);
           res.status(200).json({ success: true });
         } else {
           res.status(409).json({ error: "Email already exists." });

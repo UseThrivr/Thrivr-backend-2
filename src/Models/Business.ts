@@ -1,17 +1,22 @@
 import { DataTypes, Model } from "sequelize";
 const sequelize = require("./../setup/Sequelize");
+import Settings from "./storeSettings"; // Assuming Settings is in the same directory
+import Group from "./Group";
 
 class Business extends Model {
   public id!: number;
-  public name!: string;
+  public full_name!: string; // Ensure you are consistent with 'full_name' here
+  public business_name!: string;
   public location!: string;
   public email!: string;
   public phone_number!: string;
   public description!: string;
   public password!: string;
   public image_path!: string;
+  public role!: string;
 }
 
+// Define the Business table
 Business.init(
   {
     id: {
@@ -20,7 +25,12 @@ Business.init(
       primaryKey: true,
     },
 
-    name: {
+    full_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    business_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -37,7 +47,7 @@ Business.init(
     },
 
     phone_number: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
 
@@ -69,6 +79,21 @@ Business.init(
   }
 );
 
+// Define the association: A Business has one Settings
+Business.hasMany(Settings, {
+  foreignKey: 'store_id', // Assuming 'store_id' is used in Settings as a reference to Business
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+Business.hasMany(Group, {
+  foreignKey: 'store_id', // Reference column in Staff
+  sourceKey: 'id',        // Primary key in Business
+  onDelete: 'CASCADE',    // Optional: set cascading delete
+});
+
+
+// Sync the table with the database
 sequelize.sync({ alter: true }).then(() => {
   console.log("Table business created.");
 });

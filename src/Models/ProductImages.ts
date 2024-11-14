@@ -1,4 +1,5 @@
 import { DataTypes, Model } from "sequelize";
+import Products from "./Product";
 const sequelize = require("./../setup/Sequelize");
 
 class ProductImages extends Model {
@@ -17,8 +18,12 @@ ProductImages.init(
 
     product_id: {
       type: DataTypes.INTEGER,
+      unique: false,
       allowNull: false,
-      unique: true,
+      references: {
+        model: Products,
+        key: 'id',
+      },
     },
 
     image_path: {
