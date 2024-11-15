@@ -128,7 +128,8 @@ const Actions: ActionsInterface = {
                 include: [
                   {
                     model: ProductImages,
-                    required: true,
+                    as: "images", // This will give an alias to the associated images
+                    required: false, // Make this false to avoid excluding products without images
                   },
                 ],
               }).then((fetchedProducts) => {
@@ -153,7 +154,7 @@ const Actions: ActionsInterface = {
             },
           ],
         }).then((product) => {
-          if (!product) {
+          if (!product || product.length < 1) {
             res.status(404).json({ error: "Product does not exist." });
           } else {
             res.status(200).json({ success: true, data: product });
@@ -585,12 +586,12 @@ const Actions: ActionsInterface = {
     const user = req.user;
     const business_id = user.id;
 
-    if (!name || !email || !phone_number || group) {
-      res.status(400).json({ error: "Bad request." });
+    if (!name || !email || !phone_number) {
+      return res.status(400).json({ error: "Bad request." });
     }
 
     if (!user || !business_id) {
-      res.status(401).json({ error: "Unauthorized access." });
+      return res.status(401).json({ error: "Unauthorized access." });
     } else {
       Customer.create({
         name: name,

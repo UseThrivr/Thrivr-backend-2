@@ -25,7 +25,7 @@ Customer.init(
     },
 
     email: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
 

@@ -116,7 +116,7 @@ app.post("/api/v1/auth/signup/business", uploadBusinessLogo.single('logo'), Auth
 app.post("/api/v1/business/:id", Actions.fetchBusiness);
 
 //action routes
-app.post("/api/v1/products", uploadProductLogo.array('logos', 10), middlewares.verifyBusiness, Actions.addProduct);
+app.post("/api/v1/products", uploadProductLogo.array('images', 10), middlewares.verifyBusiness, Actions.addProduct);
 app.get("/api/v1/products/:id?", middlewares.authenticateToken, Actions.getProduct);
 app.get("/api/v1/order/:id", middlewares.verifyBusiness, Actions.getOrder);
 app.post("/api/v1/tasks", middlewares.verifyBusiness, Actions.addTask);
