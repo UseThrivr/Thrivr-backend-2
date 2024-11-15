@@ -40,21 +40,6 @@ Authorization: Bearer <token>
 ```
 
 **Success Response:**
-- **Code:** 201  
-- **Content:** 
-```json
-{
-  "success": true,
-  "message": "User registered successfully.",
-  "data": {
-    "fullname": "number",
-    "email": "string",
-    "password": "string"
-  }
-}
-```
-
-**Success Response:**
 - **Code:** 200  
 - **Content:** 
 ```json
