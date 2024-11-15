@@ -6,7 +6,7 @@ Let me rewrite the updated markdown directly here for you, including the authent
 
 ## Base URL
 ```
-https://yourapi.com/api
+yet to deploy
 ```
 
 ## Authentication
@@ -26,7 +26,7 @@ Authorization: Bearer <token>
 ### **Authentication**
 
 #### **1. User Registration**
-**URL:** `/auth/register`  
+**URL:** `/api/v1/auth/signup`  
 **Method:** `POST`  
 **Description:** Register a new user with the provided credentials.  
 
@@ -47,10 +47,55 @@ Authorization: Bearer <token>
   "success": true,
   "message": "User registered successfully.",
   "data": {
-    "userId": "number",
-    "name": "string",
-    "email": "string"
+    "fullname": "number",
+    "email": "string",
+    "password": "string"
   }
+}
+```
+
+**Success Response:**
+- **Code:** 200  
+- **Content:** 
+```json
+{
+  "success": true,
+  "message": "Proceed to enter otp."
+}
+```
+
+**Error Responses:**
+- **Code:** 400 BAD REQUEST  
+  **Content:** `{ "error": "Bad request." }`
+
+
+
+#### **2. Business Registration**
+**URL:** `/api/v1/auth/signup/business`  
+**Method:** `POST`  
+**Description:** Register a new business with the provided credentials.  
+
+**Request Body:**
+```json
+{
+  "fullname": "string",
+  "business_name": "string",
+  "location": "string",
+  "email": "string",
+  "phone_number": "string", //format: +234XXX-XXXX-XXX
+  "description": "string",
+  "password": "string",
+  "logo": "image file" // single file
+}
+```
+
+**Success Response:**
+- **Code:** 200  
+- **Content:** 
+```json
+{
+  "success": true,
+  "message": "Proceed to enter otp."
 }
 ```
 
@@ -80,10 +125,6 @@ Authorization: Bearer <token>
   "token": "string"
 }
 ```
-
-**Error Responses:**
-- **Code:** 401 UNAUTHORIZED  
-  **Content:** `{ "error": "Invalid credentials." }`
 
 #### **3. Token Validation**
 **URL:** `/auth/validate-token`  

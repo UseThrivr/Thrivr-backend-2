@@ -260,7 +260,7 @@ const Auth: Auth = {
           const otp = Math.floor(1000 + Math.random() * 9000);
           req.session.otp = otp;
           sendOTP(email, fullname, otp);
-          res.status(200).json({ success: true });
+          res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
           res.status(409).json({ error: "Email already exists." });
         }
@@ -559,7 +559,7 @@ const Auth: Auth = {
           const otp = Math.floor(1000 + Math.random() * 9000);
           req.session.otp = otp;
           sendOTP(email, full_name, otp);
-          res.status(200).json({ success: true });
+          res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
           res.status(409).json({ error: "Email already exists." });
         }
