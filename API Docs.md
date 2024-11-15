@@ -174,7 +174,7 @@ Authorization: Bearer <token>
 
 **Success Response:**
 - **Code:** 200  
-- **Content:** 
+- **Content:**
 ```json
 {
   "success": true,
