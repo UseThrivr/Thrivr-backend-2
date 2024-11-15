@@ -1,12 +1,10 @@
-Let me rewrite the updated markdown directly here for you, including the authentication routes.
 
----
 
 # API Documentation
 
 ## Base URL
 ```
-yet to deploy
+## yet to deploy
 ```
 
 ## Authentication
