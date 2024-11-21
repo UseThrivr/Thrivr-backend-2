@@ -113,7 +113,7 @@ app.post("/api/v1/auth/signup/business", uploadBusinessLogo.single('logo'), Auth
 
 
 // fetching details route
-app.post("/api/v1/business/:id", Actions.fetchBusiness);
+app.get("/api/v1/business/:id?", middlewares.verifyBusiness, Actions.fetchBusiness);
 
 //action routes
 app.post("/api/v1/products", uploadProductLogo.array('images', 10), middlewares.verifyBusiness, Actions.addProduct);
@@ -127,9 +127,11 @@ app.patch("/api/v1/business", middlewares.verifyBusiness, uploadBusinessLogo.sin
 app.patch("/api/v1/business/settings", middlewares.verifyBusiness, uploadBusinessBanner.single('logo'), Actions.updateBusinessSettings);
 app.post("/api/v1/customer", middlewares.verifyBusiness, Actions.addCustomer);
 app.post("/api/v1/group", middlewares.verifyBusiness, Actions.createGroup);
+app.post("/api/v1/staff", middlewares.verifyBusiness, Actions.addStaff);
 
 
-app.get("/api/v1/customer/:id?", middlewares.verifyBusiness, Actions.getCustomer); // query parameter "group"
+app.get("/api/v1/customer/:id?", middlewares.verifyBusiness, Actions.getCustomer); // query parameter "group" 
+
 
 
 

@@ -7,6 +7,7 @@ import Task from "../Models/Task";
 import Settings from "../Models/storeSettings";
 import Customer from "../Models/Customer";
 import Group from "../Models/Group";
+import BusinessStaffs from "../Models/BusinessStaffs";
 
 interface addProductRequest {
   name: string;
@@ -19,7 +20,7 @@ interface addProductRequest {
 }
 
 interface afterBusinessVerificationMiddleware {
-  user: { id?: number; role?: string };
+  user: { id?: number; role?: string, email ?:string };
 }
 
 interface ActionsInterface {
@@ -35,6 +36,7 @@ interface ActionsInterface {
   addCustomer: Function;
   getCustomer: Function;
   createGroup: Function;
+  addStaff: Function;
 }
 
 const Actions: ActionsInterface = {
@@ -220,10 +222,42 @@ const Actions: ActionsInterface = {
     }
   },
 
-  fetchBusiness: async (req: Request, res: Response) => {
+  fetchBusiness: async (req: Request & afterBusinessVerificationMiddleware, res: Response) => {
     const { id } = req.params;
+    const user = req.user;
+    const business_id = user.id;
+
+    if(!user || !business_id){
+      return res.status(401).json({eerroerror: 'Unauthorized access.'});
+    }
+
     if (!id) {
-      res.status(401).json({ error: "Unauthorized access." });
+      await Business.findOne({
+        where: { id: business_id },
+        include: [
+          {
+            model: Settings,
+            required: false, // Optional; set to true if a related Settings record must exist
+          },
+          {
+            model: Group,
+            required: false, // Optional; set to true if a related Staff record must exist
+          },
+        ],
+      })
+        .then((business) => {
+          Products.findAll({where: {business_id: id}}).then((products) => {
+            const { password, createdAt, updatedAt, ...businessOut } =
+            business?.dataValues;
+            businessOut.products = products;
+            res.status(200).json({ success: true, data: businessOut });
+          }).catch(() =>{
+            res.status(500).json({error: 'Server error.', message: 'Error fetching details.'});
+          })
+        })
+        .catch(() => {
+          res.status(500).json({ error: "Server error" });
+        });
     } else {
       await Business.findOne({
         where: { id: id },
@@ -239,9 +273,33 @@ const Actions: ActionsInterface = {
         ],
       })
         .then((business) => {
-          const { password, createdAt, updatedAt, ...businessOut } =
+          Products.findAll({where: {business_id: id}}).then((products) => {
+            const { password, createdAt, updatedAt, ...businessOut } =
             business?.dataValues;
-          res.status(200).json({ success: true, data: businessOut });
+            businessOut.products = products;
+            BusinessStaffs.findOne({
+              where: {email: user.email, business_id: id}
+            }).then((staff) => {
+              if(!staff){
+                res.status(200).json({ success: true, data: businessOut });
+              }
+              else{
+                let values = staff.dataValues;
+                businessOut.isStaff = true;
+                businessOut.permissions = {
+                  edit_products: values.products == true ? true: false,
+                  can_manage_payments: values.manage_payments == true ? true: false,
+                  can_edit_store_settings: values.store_settings == true ? true: false,
+                  can_view_and_edit_orders: values.order == true ? true: false,
+                  can_view_and_Edit_customers: values.customers == true ? true: false,
+                  can_view_business_reports: values.business_reports == true ? true: false
+                }
+                res.status(200).json({ success: true, data: businessOut });
+              }
+            })
+          }).catch(() =>{
+            res.status(500).json({error: 'Server error.', message: 'Error fetching details.'});
+          })
         })
         .catch(() => {
           res.status(500).json({ error: "Server error" });
@@ -689,6 +747,48 @@ const Actions: ActionsInterface = {
           res.status(500).json({ error: "Server error." });
         }
       });
+    }
+  },
+
+  addStaff: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    const { name, email, role, permissions } = req.body;
+    const user = req.user;
+    const business_id = user.id;
+
+    if (!name || !email || !role || !permissions) {
+      return res.status(400).json({ error: "Bad request." });
+    }
+
+    if (!user || !business_id) {
+      return res.status(401).json({ error: "Unauthorized access." });
+    } else {
+      BusinessStaffs.findOne({where: {email: email, business_id: business_id}}).then((staff) => {
+          if(!staff){
+            const {products, manage_payments, store_settings, order, customers, business_reports} = permissions;
+            BusinessStaffs.create({
+              name: name,
+              email: email,
+              role: role,
+              products: products,
+              manage_payments: manage_payments,
+              store_settings: store_settings,
+              order: order,
+              customers: customers,
+              business_reports: business_reports
+            }).then(staff =>{
+              return res.status(200).json({success: true, data: staff.dataValues});
+            }).catch(() => {
+              return res.status(500).json({error: 'Server error.'});
+            })
+          }
+          else{
+            return res.status(409).json({error: 'Staff exists', message: 'A staff with this email already exists.'});
+          }
+      });
+      
     }
   },
 };

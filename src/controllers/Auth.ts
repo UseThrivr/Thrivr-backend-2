@@ -554,6 +554,9 @@ const Auth: Auth = {
           if ((req as any).file) {
             preUser.image_path = (req as any).file.location; 
           }
+          else{
+            preUser.image_path = '';
+          }
           req.session.user = preUser;
 
           const otp = Math.floor(1000 + Math.random() * 9000);
