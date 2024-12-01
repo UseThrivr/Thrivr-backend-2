@@ -18,7 +18,7 @@ Authorization: Bearer <token>
 
 ### Middleware
 
-- **`authenticateToken`**: Middleware that validates the JWT token from the `Authorization` header. Returns `401 Unauthorized` if the token is missing or invalid.
+- **`authenticateToken`**: Middleware that validates the JWT token for a user from the `Authorization` header. Returns `401 Unauthorized` if the token is missing or invalid.
 - **`verifyBusiness`**: Middleware that checks if the authenticated user is associated with a valid business. Returns `401 Unauthorized` or `404 Not Found` if validation fails.
 
 ## Endpoints
@@ -292,7 +292,7 @@ Authorization: Bearer <token>
 
 ## Business Endpoints
 
-### **4. Add Product**
+### **7. Add Product**
 
 **URL:** `/api/v1/products`  
 **Method:** `POST`  
@@ -352,7 +352,7 @@ Authorization: Bearer <token>
 - **Code:** 401 UNAUTHORIZED  
   **Content:** `{ "error": "Unauthorized access." }`
 
-### **5. Get Product**
+### **8. Get Product**
 
 **URL:** `/products/:id?`  
 **Method:** `GET`  
@@ -424,7 +424,7 @@ If id is provided, it returns the product with the particular id and if not it r
 
 
 
-### **6. Create task**
+### **9. Create task**
 
 **URL:** `/api/v1/tasks`  
 **Method:** `POST`  
@@ -461,7 +461,7 @@ If id is provided, it returns the product with the particular id and if not it r
 ```
 
 
-### **5. Get task**
+### **10. Get task**
 
 **URL:** `/tasks/:id?`  
 **Method:** `GET`  
@@ -511,7 +511,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 
 
-### **5. Mark task as done**
+### **11. Mark task as done**
 
 **URL:** `/tasks/:id/done`  
 **Method:** `PATCH`  
@@ -680,7 +680,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 
 
-### **7. Fetch Business**
+### **12. Fetch Business**
 
 **URL:** `/business`  
 **Method:** `GET`  
@@ -711,7 +711,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 }
 ```
 
-### **8. Add Task**
+### **13. Add Task**
 
 **URL:** `/task`  
 **Method:** `POST`  
@@ -753,7 +753,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 }
 ```
 
-### **9. Get Tasks**
+### **14. Get Tasks**
 
 **URL:** `/tasks`  
 **Method:** `GET`  
@@ -786,7 +786,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 }
 ```
 
-### **10. Update Business Settings**
+### **15. Update Business Settings**
 
 **URL:** `/business/settings`  
 **Method:** `PATCH`  
@@ -845,7 +845,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 }
 ```
 
-### **11. Add Customer**
+### **16. Add Customer**
 
 **URL:** `/api/v1/customer`  
 **Method:** `POST`  
@@ -892,7 +892,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 }
 ```
 
-### **11. Add Customer group**
+### **17. Add Customer group**
 
 **URL:** `/api/v1/group`  
 **Method:** `POST`  
@@ -933,7 +933,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 
 
-### **11. Add staff to your business**
+### **18. Add staff to your business**
 
 **URL:** `/api/v1/staff`  
 **Method:** `POST`  
