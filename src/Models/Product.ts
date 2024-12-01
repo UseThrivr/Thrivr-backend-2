@@ -67,12 +67,12 @@ Products.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table products created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table products created.");
+// });
 
 
-Products.hasOne(ProductImages, {
+Products.hasMany(ProductImages, {
   foreignKey: 'product_id', // Assuming 'store_id' is used in Settings as a reference to Business
   sourceKey: 'id',
 });

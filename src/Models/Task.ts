@@ -63,8 +63,8 @@ Task.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table business created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table business created.");
+// });
 
 export default Task;

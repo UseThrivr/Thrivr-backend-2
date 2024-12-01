@@ -43,8 +43,8 @@ User.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table users created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table users created.");
+// });
 
 export default User;

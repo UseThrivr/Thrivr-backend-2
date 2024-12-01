@@ -94,8 +94,8 @@ Business.hasMany(Group, {
 
 
 // Sync the table with the database
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table business created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table business created.");
+// });
 
 export default Business;

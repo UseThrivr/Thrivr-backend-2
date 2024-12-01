@@ -69,8 +69,8 @@ Settings.init(
 
 
 // Sync the table with the database, altering if necessary
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table Settings created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table Settings created.");
+// });
 
 export default Settings;

@@ -60,8 +60,8 @@ Orders.init(
 )
 
 
-sequelize.sync({ alter: true }).then(() => {
-    console.log('Table Orders created.');
-});
+// sequelize.sync({ alter: true }).then(() => {
+//     console.log('Table Orders created.');
+// });
 
 export default Orders;

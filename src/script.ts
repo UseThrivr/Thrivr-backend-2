@@ -84,7 +84,7 @@ interface corsInterface {
 
 const corsOption: corsInterface = {
   origin: FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
@@ -134,6 +134,8 @@ app.get("/api/v1/customer/:id?", middlewares.verifyBusiness, Actions.getCustomer
 
 
 
+// TO-DO: add delete account route
+// TO-DO: ADD get groups_rout
 
 
 

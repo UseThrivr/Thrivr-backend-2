@@ -86,16 +86,30 @@ const Actions: ActionsInterface = {
                   ProductImages.create({
                     product_id: product.id,
                     image_path: file.location,
+                  }).then((image) => {
+                    let data = product.dataValues;
+                    data.image_path = image.dataValues.image_path;
+                    return res.status(201).json({
+                      success: true,
+                      message: "Product created successfully",
+                      data:data
+                    });
+                  }).catch(() => {
+                    res.status(500).json({error: 'Server error.'});
                   });
+                });
+              }
+              else{
+                let data = product.dataValues;
+                return res.status(201).json({
+                  success: true,
+                  message: "Product created successfully",
+                  data:data
                 });
               }
             } else {
               return res.status(500).json({ error: "Server error." });
             }
-            return res.status(201).json({
-              success: true,
-              message: "Product created successfully",
-            });
           });
         }
       }
@@ -116,47 +130,46 @@ const Actions: ActionsInterface = {
         const business_id = user.id;
 
         if (user.role != "business") {
-          res.status(401).json({ error: "Unauthorized access." });
+          return res.status(401).json({ error: "Unauthorized access." });
         } else {
           if (!business_id) {
-            res.status(400).json({ error: "Bad request." });
+            return res.status(400).json({ error: "Bad request." });
           } else {
             const business = await Business.findOne();
             if (!business) {
-              res.status(404).json({ error: "Business does not exist" });
+              return res.status(404).json({ error: "Business does not exist" });
             } else {
               Products.findAll({
                 where: { business_id: business_id },
                 include: [
                   {
                     model: ProductImages,
-                    as: "images", // This will give an alias to the associated images
-                    required: false, // Make this false to avoid excluding products without images
+                    required: false, 
                   },
                 ],
               }).then((fetchedProducts) => {
                 if (fetchedProducts) {
-                  res
+                  return res
                     .status(200)
                     .json({ success: true, data: fetchedProducts });
                 } else {
-                  res.status(500).json({ error: "Error fetching products." });
+                  return res.status(500).json({ error: "Error fetching products." });
                 }
               });
             }
           }
         }
       } else {
-        await Products.findAll({
+        await Products.findOne({
           where: { id: id },
           include: [
             {
               model: ProductImages,
-              required: true,
+              required: false,
             },
           ],
         }).then((product) => {
-          if (!product || product.length < 1) {
+          if (!product) {
             res.status(404).json({ error: "Product does not exist." });
           } else {
             res.status(200).json({ success: true, data: product });
@@ -164,6 +177,7 @@ const Actions: ActionsInterface = {
         });
       }
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: "Server error." });
     }
   },
@@ -246,14 +260,19 @@ const Actions: ActionsInterface = {
         ],
       })
         .then((business) => {
-          Products.findAll({where: {business_id: id}}).then((products) => {
-            const { password, createdAt, updatedAt, ...businessOut } =
-            business?.dataValues;
-            businessOut.products = products;
-            res.status(200).json({ success: true, data: businessOut });
-          }).catch(() =>{
-            res.status(500).json({error: 'Server error.', message: 'Error fetching details.'});
-          })
+          if(business){
+            Products.findAll({where: {business_id: id}}).then((products) => {
+              const { password, createdAt, updatedAt, ...businessOut } =
+              business?.dataValues;
+              businessOut.products = products;
+              res.status(200).json({ success: true, data: businessOut });
+            }).catch(() =>{
+              res.status(500).json({error: 'Server error.', message: 'Error fetching details.'});
+            })
+          }
+          else{
+            return res.status(404).json({error: 'Business not found.'});
+          }
         })
         .catch(() => {
           res.status(500).json({ error: "Server error" });
@@ -451,7 +470,6 @@ const Actions: ActionsInterface = {
       email,
       phone_number,
       description,
-      logo,
       password,
     } = req.body;
 
@@ -726,7 +744,7 @@ const Actions: ActionsInterface = {
     req: Request & afterBusinessVerificationMiddleware,
     res: Response
   ) => {
-    const { name, email, phone_number, instagram, group } = req.body;
+    const { name } = req.body;
     const user = req.user;
     const business_id = user.id;
 
@@ -767,22 +785,25 @@ const Actions: ActionsInterface = {
     } else {
       BusinessStaffs.findOne({where: {email: email, business_id: business_id}}).then((staff) => {
           if(!staff){
-            const {products, manage_payments, store_settings, order, customers, business_reports} = permissions;
+            const {products, manage_payments, edit_store_settings, order, customers, business_reports} = JSON.parse(permissions);
             BusinessStaffs.create({
               name: name,
               email: email,
               role: role,
               products: products,
               manage_payments: manage_payments,
-              store_settings: store_settings,
+              store_settings: edit_store_settings,
               order: order,
               customers: customers,
-              business_reports: business_reports
+              business_reports: business_reports,
+              business_id: business_id
             }).then(staff =>{
               return res.status(200).json({success: true, data: staff.dataValues});
-            }).catch(() => {
-              return res.status(500).json({error: 'Server error.'});
             })
+            .catch((error) => {
+              console.log(error);
+              return res.status(500).json({error: 'Server error.'});
+            });
           }
           else{
             return res.status(409).json({error: 'Staff exists', message: 'A staff with this email already exists.'});

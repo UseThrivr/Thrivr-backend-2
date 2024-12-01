@@ -18,7 +18,6 @@ ProductImages.init(
 
     product_id: {
       type: DataTypes.INTEGER,
-      unique: false,
       allowNull: false,
       references: {
         model: Products,
@@ -38,8 +37,8 @@ ProductImages.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table ProductImages created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table ProductImages created.");
+// });
 
 export default ProductImages;

@@ -262,7 +262,7 @@ const Auth: Auth = {
           sendOTP(email, fullname, otp);
           res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
-          res.status(409).json({ error: "Email already exists." });
+          res.status(422).json({ error: "Email already exists." });
         }
       }
     } catch (error) {
@@ -392,6 +392,7 @@ const Auth: Auth = {
         req.session.otp = otp;
 
         sendOTP(email, name, otp);
+        res.status(200).json({sucess: true, message: 'OTP sent sucessfully.'});
       }
     } catch (error) {
       res.status(500).json({ error: "Server error." });

@@ -23,7 +23,6 @@ Group.init(
 
     store_id: {
       type: DataTypes.INTEGER,
-      unique: true,
       allowNull: false,
       references: {
         model: Business,
@@ -37,8 +36,8 @@ Group.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table Group created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table Group created.");
+// });
 
 export default Group;

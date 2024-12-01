@@ -57,8 +57,8 @@ Customer.init(
   }
 );
 
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Table Customer created.");
-});
+// sequelize.sync({ alter: true }).then(() => {
+//   console.log("Table Customer created.");
+// });
 
 export default Customer;
