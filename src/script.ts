@@ -141,7 +141,7 @@ app.get("/api/v1/customer/:id?", middlewares.verifyBusiness, Actions.getCustomer
 
 const startServer = async () => {
   try {
-    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ alter: true });
     app.listen(PORT, () => {
       console.log(`Server is listening on port: ${PORT}`);
     });
