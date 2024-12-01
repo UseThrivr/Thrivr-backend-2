@@ -803,10 +803,11 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "settings": {
-    "key1": "value1",
-    "key2": "value2"
-  }
+  "theme": "string",
+  "banner_image": "string",
+  "working_days": "string",
+  "opening_hours": "string",
+  "currency": "string"
 }
 ```
 
@@ -817,8 +818,30 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "success": true,
-  "message": "Business settings updated successfully."
+    "message": "Update successful.",
+    "user": {
+        "full_name": "john Doe",
+        "business_name": "john's Shoes",
+        "location": "Ojo, Lagos Nigeria.",
+        "email": "abc123@gmail.com",
+        "phone_number": "+234908763985",
+        "description": "We sell shoes",
+        "role": "business",
+        "image_path": "",
+        "Settings": [
+            {
+                "id": 1,
+                "banner_image": "banner",
+                "theme": "dark",
+                "working_days": "monday-friday",
+                "opening_hours": "10-12",
+                "currency": "NGN",
+                "store_id": 1,
+                "createdAt": "2024-12-01T14:45:04.000Z",
+                "updatedAt": "2024-12-01T16:14:30.000Z"
+            }
+        ]
+    }
 }
 ```
 
