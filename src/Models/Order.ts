@@ -19,6 +19,10 @@ Orders.init(
             autoIncrement: true,
             primaryKey:true,
         },
+        product_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         business_id: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -49,6 +53,7 @@ Orders.init(
         },
         note: {
             type: DataTypes.TEXT,
+            defaultValue: '',
             allowNull: false,
         },
 

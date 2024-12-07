@@ -935,9 +935,12 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ### **18. Add staff to your business**
 
-**URL:** `/api/v1/staff`  
+
+### **19. Make an order**
+
+**URL:** `/api/v1/order`  
 **Method:** `POST`  
-**Description:** Add a new staff to the business.  
+**Description:** Make a new order.  
 **Headers:**
 
 - `Authorization: Bearer <token>`
@@ -950,23 +953,22 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "name": "string", //name of moderator
-  "email": "string",
+  "product_id": "number",
+  "business_id": "string",
   "role": "string",
-  "permissions": {
-    "products": "boolean",
-    "manage_payments": "boolean",
-    "edit_store_settings": "boolean",
-    "order": "boolean",
-    "customers": "boolean",
-    "business_reports": "boolean",
-  }
+  "customer_name": "string",
+  "customers_contact": "string",
+  "sales_channel": "string",
+  "payment_channel": "string",
+  "order_date": "string",
+  "payment_status": "string",
+  "note": "string",
 }
 ```
 
 **Success Response:**
 
-- **Code:** 200
+- **Code:** 201
 - **Content:**
 
 ```json
@@ -974,18 +976,113 @@ If id is provided, it returns the task with the particular id and if not it retu
     "success": true,
     "data": {
         "id": 1,
-        "name": "John doe",
-        "email": "abc123@gmail.com",
-        "role": "manager",
-        "products": true,
-        "manage_payments": true,
-        "store_settings": true,
-        "order": true,
-        "customers": true,
-        "business_reports": true,
+        "product_id": "1",
         "business_id": 1,
-        "updatedAt": "2024-12-01T16:02:22.459Z",
-        "createdAt": "2024-12-01T16:02:22.459Z"
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
     }
 }
+```
+
+
+### **20. update an order**
+
+**URL:** `/api/v1/order/:id`  
+**Method:** `PATCH`  
+**Description:** Update payment status for an order.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Path parameters:**
+
+- `id(Compulsory)`
+
+
+**Request Body:**
+
+```json
+{
+  "payment_status": "number",
+}
+```
+
+**Success Response:**
+
+- **Code:** 201
+- **Content:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "not paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    }
+}
+```
+
+
+
+### **21. Get dashboard**
+**URL:** `/api/v1/dashboard`  
+**Method:** `GET`  
+**Description:** Get dashboard details for he logged in user.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Success Response:**
+
+- **Code:** 201
+- **Content:**
+
+**Pending**
+
+
+
+### **21. Delete account**
+**URL:** `/api/v1/user`  
+**Method:** `DELETE`  
+**Description:** Delete current user account.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Success Response:**
+
+- **Code:** 204
+- **Content:**
+
+```json
+{"success": true, "message": "Account deleted successfully"}
 ```

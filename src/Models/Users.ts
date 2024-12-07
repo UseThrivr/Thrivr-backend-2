@@ -31,6 +31,12 @@ User.init(
       allowNull: false,
     },
 
+    deleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+
     role: {
       type: DataTypes.STRING,
       defaultValue: 'user',

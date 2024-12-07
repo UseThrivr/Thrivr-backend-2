@@ -119,9 +119,11 @@ app.get("/api/v1/business/:id?", middlewares.verifyBusiness, Actions.fetchBusine
 app.post("/api/v1/products", uploadProductLogo.array('images', 10), middlewares.verifyBusiness, Actions.addProduct);
 app.get("/api/v1/products/:id?", middlewares.authenticateToken, Actions.getProduct);
 app.get("/api/v1/order/:id", middlewares.verifyBusiness, Actions.getOrder);
+app.post("/api/v1/order/", middlewares.verifyBusiness, Actions.makeOrder);
 app.post("/api/v1/tasks", middlewares.verifyBusiness, Actions.addTask);
 app.get("/api/v1/tasks/:id?", middlewares.verifyBusiness, Actions.getTasks);
 app.patch("/api/v1/tasks/:id/done", middlewares.verifyBusiness, Actions.doTask);
+app.patch("/api/v1/order/:id", middlewares.verifyBusiness, Actions.updateOrder);
 
 app.patch("/api/v1/business", middlewares.verifyBusiness, uploadBusinessLogo.single('logo'), Actions.updateBusiness);
 app.patch("/api/v1/business/settings", middlewares.verifyBusiness, uploadBusinessBanner.single('logo'), Actions.updateBusinessSettings);
@@ -131,17 +133,21 @@ app.post("/api/v1/staff", middlewares.verifyBusiness, Actions.addStaff);
 
 
 app.get("/api/v1/customer/:id?", middlewares.verifyBusiness, Actions.getCustomer); // query parameter "group" 
+app.get("/api/v1/dashboard", middlewares.verifyBusiness, Actions.getDashboard);
+app.delete("/api/v1/user", middlewares.verifyBusiness, Actions.deleteAccount);
 
 
 
 // TO-DO: add delete account route
 // TO-DO: ADD get groups_rout
+// TO-DO: i did make order route, update order
+//get dashboard route
 
 
 
 const startServer = async () => {
   try {
-    // await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: true });
     app.listen(PORT, () => {
       console.log(`Server is listening on port: ${PORT}`);
     });

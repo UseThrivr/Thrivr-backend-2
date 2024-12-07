@@ -8,6 +8,8 @@ import Settings from "../Models/storeSettings";
 import Customer from "../Models/Customer";
 import Group from "../Models/Group";
 import BusinessStaffs from "../Models/BusinessStaffs";
+import { error } from "console";
+import User from "../Models/Users";
 
 interface addProductRequest {
   name: string;
@@ -27,6 +29,7 @@ interface ActionsInterface {
   addProduct: Function;
   getProduct: Function;
   getOrder: Function;
+  makeOrder: Function;
   fetchBusiness: Function;
   addTask: Function;
   getTasks: Function;
@@ -37,6 +40,9 @@ interface ActionsInterface {
   getCustomer: Function;
   createGroup: Function;
   addStaff: Function;
+  updateOrder: Function;
+  getDashboard: Function;
+  deleteAccount: Function;
 }
 
 const Actions: ActionsInterface = {
@@ -237,6 +243,66 @@ const Actions: ActionsInterface = {
     } catch (error) {
       res.status(500).json({ error: "Server error." });
     }
+  },
+
+  makeOrder: async(req: Request & afterBusinessVerificationMiddleware,
+    res: Response) => {
+      const { product_id, customer_name, customers_contact, sales_channel, payment_channel, order_date, payment_status, note } = req.body;
+      const user = req.user;
+      const business_id = user.id;
+
+      if (!user || !business_id) {
+        return res.status(401).json({ eerroerror: "Unauthorized access." });
+      }
+
+      if(!product_id || !customer_name || !customers_contact || !sales_channel || !payment_channel || !order_date || !payment_status){
+        return res.status(400).json({error: 'Bad request.'});
+      }
+
+      Orders.create({
+        product_id: product_id,
+        business_id: business_id,
+        customer_name: customer_name,
+        customers_contact: customers_contact,
+        sales_channel: sales_channel,
+        payment_channel: payment_channel,
+        order_date: order_date,
+        payment_status: payment_status,
+        note: note
+      }).then((order) => {
+        return res.status(201).json({success: true, data: order.dataValues});
+      })
+      .catch(() => {
+        return res.status(500).json({error: 'Server error'});
+      });
+  },
+
+  updateOrder: async (req: Request & afterBusinessVerificationMiddleware,
+    res: Response) => {
+      const { id } = req.params;
+      const {payment_status} = req.body;
+      const user = req.user;
+      const business_id = user.id;
+
+      if (!user || !business_id) {
+        return res.status(401).json({ eerroerror: "Unauthorized access." });
+      }
+
+      if(!id || !payment_status){
+        return res.status(400).json({error: 'Bad request.'});
+      }
+
+      Orders.update({payment_status: payment_status}, {where: {id: id}}).then((order) => {
+        Orders.findOne({where: {id: id}}).then((gotten_order) =>{
+          return res.status(200).json({success: true, data: gotten_order});
+        })
+        .catch(() => {
+          return res.status(500).json({error: 'Server error'});
+        });
+      })
+      .catch(() => {
+        return res.status(500).json({error: 'Server error'});
+      });
   },
 
   fetchBusiness: async (
@@ -854,6 +920,44 @@ const Actions: ActionsInterface = {
       });
     }
   },
+
+  getDashboard: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    const user = req.user;
+    const business_id = user.id;
+
+    if(!user || !business_id){
+      return res.status(401).json({error: 'Unauthorized access.'});
+    }
+
+    Business.findOne({where: {id: business_id}}).then(() => {
+
+    })
+    .catch(() => {
+      return res.status(500).json({error: 'Server error.'});
+    });
+  },
+
+  deleteAccount: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    const user = req.user;
+    const business_id = user.id;
+
+    if(!user || !business_id){
+      return res.status(401).json({error: 'Unauthorized access.'});
+    }
+
+    User.update({deleted: true}, {where: {id: business_id}}).then(() => {
+      res.status(204).json({success: true, message: 'Account deleted successfully'});
+    })
+    .catch(() => {
+      return res.status(500).json({error: 'Server errror'});
+    });
+  }
 };
 
 export default Actions;
