@@ -3,7 +3,7 @@
 ## Base URL
 
 ```
-## [https://thrivr.onrender.com](https://thrivr.onrender.com)
+## https://thrivr.onrender.com
 ```
 
 ## Authentication
