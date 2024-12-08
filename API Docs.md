@@ -3,7 +3,7 @@
 ## Base URL
 
 ```
-## yet to deploy
+## https://thrivr.onrender.com
 ```
 
 ## Authentication
