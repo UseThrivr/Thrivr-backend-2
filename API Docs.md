@@ -145,7 +145,8 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "otp": "number"
+  "otp": "number",
+  "email": "string"
 }
 ```
 
@@ -192,6 +193,16 @@ Authorization: Bearer <token>
 **URL:** `/api/v1/resend-otp`  
 **Method:** `GET`  
 **Description:** Resends the otp.
+
+
+**Request Body:**
+
+```json
+{
+  "email": "string"
+}
+```
+
 
 **Success Response:**
 

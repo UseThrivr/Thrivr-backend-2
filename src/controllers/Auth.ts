@@ -5,6 +5,9 @@ const nodemailer = require("nodemailer");
 import bcrypt from "bcryptjs";
 import Settings from "../Models/storeSettings";
 const jwt = require("jsonwebtoken");
+const NodeCache = require( "node-cache" );
+const userCache = new NodeCache();
+const otpCache = new NodeCache();
 
 interface Auth {
   signup: any;
@@ -255,10 +258,10 @@ const Auth: Auth = {
         if (!emailExists && !businessExists) {
           let preUser = req.body;
           preUser.role = 'user';
-          req.session.user = preUser;
+          userCache.set( `user:${email}`, preUser );
 
           const otp = Math.floor(1000 + Math.random() * 9000);
-          req.session.otp = otp;
+          userCache.set( `otp:${email}`, otp );
           sendOTP(email, fullname, otp);
           res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
@@ -272,18 +275,19 @@ const Auth: Auth = {
 
   verifyOTP: async (req: Request | any, res: Response) => {
     try {
-      const { otp } = req.body;
+      const { otp, email } = req.body;
 
       if (!otp) {
         res.status(400).json({ error: "Bad request." });
       } else {
-        if (otp != req.session.otp) {
+        console.log(otpCache.get(`otp:${email}`))
+        if (otp != otpCache.get(`otp:${email}`)) {
           res.status(409).json({
             message: "Incorrect OTP.",
             code: "INVALID_OTP_ENTERED",
           });
         } else {
-          let userInfo = req.session.user;
+          let userInfo = userCache.get(`user:${email}`);
           if (userInfo.role == "user") {
             const { fullname, email, password } = userInfo;
             const SALT_ROUNDS = process.env.SALT_ROUNDS as unknown as string;
@@ -298,7 +302,6 @@ const Auth: Auth = {
               if (user) {
                 const { password, ...userRef } =
                   user.dataValues;
-                req.session.user = userRef;
                 const token = jwt.sign(userRef, process.env.SECRET_KEY, {
                   expiresIn: "24h",
                 });
@@ -349,7 +352,6 @@ const Auth: Auth = {
                 if (user && settings) {
                   const { password, ...userRef } =
                     user.dataValues;
-                  req.session.user = userRef;
                   const token = jwt.sign(userRef, process.env.SECRET_KEY, {
                     expiresIn: "24h",
                   });
@@ -384,16 +386,18 @@ const Auth: Auth = {
 
   resendOTP: async (req: Request | any, res: Response) => {
     try {
-      if (!req.session.user) {
+        let {email} = req.body;
         res.status(404).json({ error: "No login process found." });
-      } else {
-        let { email, name } = req.session.user;
+      
+        let { email_, name } = userCache.get(`user:${email}`);;
+        if(!userCache.get(`user:${email_}`)){
+          return res.status(404).json({error: 'No login process found.'});
+        }
         const otp = Math.floor(1000 + Math.random() * 9000);
-        req.session.otp = otp;
+        otpCache.set(`otp:${email_}`, otp );
 
-        sendOTP(email, name, otp);
+        sendOTP(email_, name, otp);
         res.status(200).json({sucess: true, message: 'OTP sent sucessfully.'});
-      }
     } catch (error) {
       res.status(500).json({ error: "Server error." });
     }
@@ -419,7 +423,6 @@ const Auth: Auth = {
           if (match) {
             const { password, createdAt, updatedAt, ...userRef } =
               user.dataValues;
-            req.session.user = userRef;
             const token = jwt.sign(userRef, process.env.SECRET_KEY, {
               expiresIn: "24h",
             });
@@ -558,10 +561,10 @@ const Auth: Auth = {
           else{
             preUser.image_path = '';
           }
-          req.session.user = preUser;
+          userCache.set(`user:${email}`, preUser );
 
           const otp = Math.floor(1000 + Math.random() * 9000);
-          req.session.otp = otp;
+          otpCache.set(`otp:${email}`, otp );
           sendOTP(email, full_name, otp);
           res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
