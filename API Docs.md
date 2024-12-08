@@ -1086,3 +1086,4 @@ If id is provided, it returns the task with the particular id and if not it retu
 ```json
 {"success": true, "message": "Account deleted successfully"}
 ```
+ 
