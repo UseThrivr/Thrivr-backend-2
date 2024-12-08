@@ -1014,7 +1014,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "payment_status": "number",
+  "payment_status": "string",
 }
 ```
 
