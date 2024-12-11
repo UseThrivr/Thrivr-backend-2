@@ -72,10 +72,10 @@ const Actions: ActionsInterface = {
         !supplier ||
         !business_id
       ) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         if (user.role != "business") {
-          res.status(401).json({ error: "Unauthoried access." });
+          return res.status(401).json({ error: "Unauthoried access." });
         } else {
           Products.create({
             name: name,
@@ -103,7 +103,7 @@ const Actions: ActionsInterface = {
                       });
                     })
                     .catch(() => {
-                      res.status(500).json({ error: "Server error." });
+                      return res.status(500).json({ error: "Server error." });
                     });
                 });
               } else {
@@ -121,7 +121,7 @@ const Actions: ActionsInterface = {
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error.", error_: "after" });
+      return res.status(500).json({ error: "Server error.", error_: "after" });
     }
   },
 
@@ -179,15 +179,15 @@ const Actions: ActionsInterface = {
           ],
         }).then((product) => {
           if (!product) {
-            res.status(404).json({ error: "Product does not exist." });
+            return res.status(404).json({ error: "Product does not exist." });
           } else {
-            res.status(200).json({ success: true, data: product });
+            return res.status(200).json({ success: true, data: product });
           }
         });
       }
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
 
@@ -201,24 +201,24 @@ const Actions: ActionsInterface = {
       const { id } = req.params;
 
       if (!user || !business_id) {
-        res.status(401).json({ error: "Unauthorized access." });
+        return res.status(401).json({ error: "Unauthorized access." });
       } else {
         if (!id) {
           if (user.role != "business") {
-            res.status(401).json({ error: "Unauthorized access." });
+            return res.status(401).json({ error: "Unauthorized access." });
           } else {
             const business = await Business.findOne();
             if (!business) {
-              res.status(404).json({ error: "Business does not exist" });
+              return res.status(404).json({ error: "Business does not exist" });
             } else {
               Orders.findAll({ where: { business_id: business_id } }).then(
                 (fetchedOrders) => {
                   if (fetchedOrders) {
-                    res
+                    return res
                       .status(200)
                       .json({ success: true, data: fetchedOrders });
                   } else {
-                    res
+                    return res
                       .status(500)
                       .json({ error: "Error fetching order details." });
                   }
@@ -231,17 +231,17 @@ const Actions: ActionsInterface = {
             where: { id: id },
           }).then((order) => {
             if (!order) {
-              res.status(404).json({
+              return res.status(404).json({
                 error: "The order you requested for does not exist. 😓",
               });
             } else {
-              res.status(200).json({ success: true, data: order });
+              return res.status(200).json({ success: true, data: order });
             }
           });
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
 
@@ -338,10 +338,10 @@ const Actions: ActionsInterface = {
                 const { password, createdAt, updatedAt, ...businessOut } =
                   business?.dataValues;
                 businessOut.products = products;
-                res.status(200).json({ success: true, data: businessOut });
+                return res.status(200).json({ success: true, data: businessOut });
               })
               .catch(() => {
-                res
+                return res
                   .status(500)
                   .json({
                     error: "Server error.",
@@ -353,7 +353,7 @@ const Actions: ActionsInterface = {
           }
         })
         .catch(() => {
-          res.status(500).json({ error: "Server error" });
+          return res.status(500).json({ error: "Server error" });
         });
     } else {
       await Business.findOne({
@@ -379,7 +379,7 @@ const Actions: ActionsInterface = {
                 where: { email: user.email, business_id: id },
               }).then((staff) => {
                 if (!staff) {
-                  res.status(200).json({ success: true, data: businessOut });
+                  return res.status(200).json({ success: true, data: businessOut });
                 } else {
                   let values = staff.dataValues;
                   businessOut.isStaff = true;
@@ -396,12 +396,12 @@ const Actions: ActionsInterface = {
                     can_view_business_reports:
                       values.business_reports == true ? true : false,
                   };
-                  res.status(200).json({ success: true, data: businessOut });
+                  return res.status(200).json({ success: true, data: businessOut });
                 }
               });
             })
             .catch(() => {
-              res
+              return res
                 .status(500)
                 .json({
                   error: "Server error.",
@@ -410,7 +410,7 @@ const Actions: ActionsInterface = {
             });
         })
         .catch(() => {
-          res.status(500).json({ error: "Server error" });
+          return res.status(500).json({ error: "Server error" });
         });
     }
   },
@@ -424,11 +424,11 @@ const Actions: ActionsInterface = {
     const business_id = user.id;
 
     if (!title || !due_date || !time || !reminder) {
-      res.status(400).json({ error: "Bad request." });
+      return res.status(400).json({ error: "Bad request." });
     }
 
     if (!user || !business_id) {
-      res.status(401).json({ error: "Unauthorized access." });
+      return res.status(401).json({ error: "Unauthorized access." });
     } else {
       Task.create({
         title: title,
@@ -439,9 +439,9 @@ const Actions: ActionsInterface = {
         user_id: business_id,
       }).then((task) => {
         if (task) {
-          res.status(201).json({ sucess: true, data: task.dataValues });
+          return res.status(201).json({ sucess: true, data: task.dataValues });
         } else {
-          res.status(500).json({ error: "Server error." });
+          return res.status(500).json({ error: "Server error." });
         }
       });
     }
@@ -456,7 +456,7 @@ const Actions: ActionsInterface = {
     const { id } = req.params;
 
     if (!user || !business_id) {
-      res.status(400).json({
+      return res.status(400).json({
         error: "Bad request.",
         message: "User Authentication failed.",
       });
@@ -465,17 +465,17 @@ const Actions: ActionsInterface = {
     if (!id) {
       Task.findAll({ where: { user_id: business_id } }).then((task) => {
         if (task) {
-          res.status(200).json({ success: true, data: task });
+          return res.status(200).json({ success: true, data: task });
         } else {
-          res.status(500).json({ error: "Server error." });
+          return res.status(500).json({ error: "Server error." });
         }
       });
     } else {
       Task.findOne({ where: { id: id } }).then((task) => {
         if (task) {
-          res.status(200).json({ success: true, data: task.dataValues });
+          return res.status(200).json({ success: true, data: task.dataValues });
         } else {
-          res.status(404).json({
+          return res.status(404).json({
             error: "task not found.",
             message: "Task does not exist.",
           });
@@ -644,7 +644,7 @@ const Actions: ActionsInterface = {
         user: updatedUser,
       });
     } catch (error) {
-      res.status(500).json({ error: "Update failed." });
+      return res.status(500).json({ error: "Update failed." });
     }
   },
 
@@ -743,7 +743,7 @@ const Actions: ActionsInterface = {
           });
       });
     } catch (error) {
-      res.status(500).json({ error: "Update failed." });
+      return res.status(500).json({ error: "Update failed." });
     }
   },
 
@@ -771,9 +771,9 @@ const Actions: ActionsInterface = {
         business_id: business_id,
       }).then((customer) => {
         if (customer) {
-          res.status(201).json({ sucess: true, data: customer.dataValues });
+          return res.status(201).json({ sucess: true, data: customer.dataValues });
         } else {
-          res.status(500).json({ error: "Server error." });
+          return res.status(500).json({ error: "Server error." });
         }
       });
     }
@@ -842,20 +842,20 @@ const Actions: ActionsInterface = {
     const business_id = user.id;
 
     if (!name) {
-      res.status(400).json({ error: "Bad request." });
+      return res.status(400).json({ error: "Bad request." });
     }
 
     if (!user || !business_id) {
-      res.status(401).json({ error: "Unauthorized access." });
+      return res.status(401).json({ error: "Unauthorized access." });
     } else {
       Group.create({
         name: name,
         store_id: business_id,
       }).then((group) => {
         if (group) {
-          res.status(201).json({ sucess: true, data: group.dataValues });
+          return res.status(201).json({ sucess: true, data: group.dataValues });
         } else {
-          res.status(500).json({ error: "Server error." });
+          return res.status(500).json({ error: "Server error." });
         }
       });
     }
@@ -952,7 +952,7 @@ const Actions: ActionsInterface = {
     }
 
     User.update({deleted: true}, {where: {id: business_id}}).then(() => {
-      res.status(204).json({success: true, message: 'Account deleted successfully'});
+      return res.status(204).json({success: true, message: 'Account deleted successfully'});
     })
     .catch(() => {
       return res.status(500).json({error: 'Server errror'});

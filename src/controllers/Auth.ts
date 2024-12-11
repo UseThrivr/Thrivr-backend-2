@@ -250,7 +250,7 @@ const Auth: Auth = {
         email.length < 1 ||
         password.length < 1
       ) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         let emailExists = await User.findOne({ where: { email: email } });
         let businessExists = await Business.findOne({ where: { email: email } });
@@ -263,13 +263,13 @@ const Auth: Auth = {
           const otp = Math.floor(1000 + Math.random() * 9000);
           userCache.set( `otp:${email}`, otp );
           sendOTP(email, fullname, otp);
-          res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
+          return res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
-          res.status(422).json({ error: "Email already exists." });
+          return res.status(422).json({ error: "Email already exists." });
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Error." });
+      return res.status(500).json({ error: "Error." });
     }
   },
 
@@ -278,11 +278,11 @@ const Auth: Auth = {
       const { otp, email } = req.body;
 
       if (!otp) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         console.log(otpCache.get(`otp:${email}`))
         if (otp != otpCache.get(`otp:${email}`)) {
-          res.status(409).json({
+          return res.status(409).json({
             message: "Incorrect OTP.",
             code: "INVALID_OTP_ENTERED",
           });
@@ -306,14 +306,14 @@ const Auth: Auth = {
                   expiresIn: "24h",
                 });
 
-                res.status(201).json({
+                return res.status(201).json({
                   message: "Success",
                   code: "SIGNUP_COMPLETE",
                   details: "Signup completed.",
                   token: token
                 });
               } else {
-                res.status(500).json({
+                return res.status(500).json({
                   message: "Connection error.",
                   code: "CONNECTION_ERR",
                   details: "Error connecting to database.",
@@ -357,7 +357,7 @@ const Auth: Auth = {
                   });
   
   
-                  res.status(201).json({
+                  return res.status(201).json({
                     message: "Success",
                     code: "SIGNUP_COMPLETE",
                     details: "Signup completed.",
@@ -366,7 +366,7 @@ const Auth: Auth = {
                     token: token
                   });
                 } else {
-                  res.status(500).json({
+                  return res.status(500).json({
                     message: "Connection error.",
                     code: "CONNECTION_ERR",
                     details: "Error connecting to database.",
@@ -379,15 +379,13 @@ const Auth: Auth = {
         }
       }
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
 
   resendOTP: async (req: Request | any, res: Response) => {
     try {
         let {email} = req.body;
-        res.status(404).json({ error: "No login process found." });
       
         let { email_, name } = userCache.get(`user:${email}`);;
         if(!userCache.get(`user:${email_}`)){
@@ -397,9 +395,9 @@ const Auth: Auth = {
         otpCache.set(`otp:${email_}`, otp );
 
         sendOTP(email_, name, otp);
-        res.status(200).json({sucess: true, message: 'OTP sent sucessfully.'});
+        return res.status(200).json({sucess: true, message: 'OTP sent sucessfully.'});
     } catch (error) {
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
 
@@ -408,7 +406,7 @@ const Auth: Auth = {
       let { email, password } = req.body;
 
       if (!email || !password || email.length < 1 || password.length < 1) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         let user = await User.findOne({ where: { email: email } });
 
@@ -417,7 +415,7 @@ const Auth: Auth = {
         }
 
         if (!user) {
-          res.status(404).json({ error: "Invalid credentials." });
+          return res.status(404).json({ error: "Invalid credentials." });
         } else {
           const match = await bcrypt.compare(password, user.password);
           if (match) {
@@ -437,7 +435,7 @@ const Auth: Auth = {
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
   forgotPassword: async (req: Request, res: Response) => {
@@ -448,11 +446,11 @@ const Auth: Auth = {
       let { email } = req.body as unknown as forgotEmailInterface;
 
       if (!email) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         let user = await User.findOne({ where: { email: email } });
         if (!user) {
-          res.status(404).json({ error: "Invalid email." });
+          return res.status(404).json({ error: "Invalid email." });
         } else {
           interface user {
             username: string;
@@ -463,7 +461,7 @@ const Auth: Auth = {
           })) as unknown as user;
           let mail = await sendForgotEmail(email, username);
           if (mail) {
-            res.status(200).json({ sucess: true });
+            return res.status(200).json({ sucess: true });
           } else {
             res
               .status(500)
@@ -472,7 +470,7 @@ const Auth: Auth = {
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
   resetPassword: async (req: Request, res: Response) => {
@@ -509,14 +507,14 @@ const Auth: Auth = {
               .status(200)
               .json({ success: true, message: "Password changed." });
           } else {
-            res.status(500).json({ error: "Server error." });
+            return res.status(500).json({ error: "Server error." });
           }
         });
       } catch (err) {
-        res.status(409).json({ error: err });
+        return res.status(409).json({ error: err });
       }
     } catch (error) {
-      res.status(500).json({ error: "Server error." });
+      return res.status(500).json({ error: "Server error." });
     }
   },
 
@@ -547,7 +545,7 @@ const Auth: Auth = {
         description.length < 1 ||
         password.length < 1
       ) {
-        res.status(400).json({ error: "Bad request." });
+        return res.status(400).json({ error: "Bad request." });
       } else {
         let emailExists = await User.findOne({ where: { email: email } });
         let businessExists = await Business.findOne({ where: { email: email } });
@@ -566,13 +564,13 @@ const Auth: Auth = {
           const otp = Math.floor(1000 + Math.random() * 9000);
           otpCache.set(`otp:${email}`, otp );
           sendOTP(email, full_name, otp);
-          res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
+          return res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
-          res.status(409).json({ error: "Email already exists." });
+          return res.status(409).json({ error: "Email already exists." });
         }
       }
     } catch (error) {
-      res.status(500).json({ error: "Error." });
+      return res.status(500).json({ error: "Error." });
     }
   },
 };
