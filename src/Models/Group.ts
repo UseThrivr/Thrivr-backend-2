@@ -36,8 +36,4 @@ Group.init(
   }
 );
 
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table Group created.");
-// });
-
 export default Group;

@@ -37,8 +37,5 @@ ProductImages.init(
   }
 );
 
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table ProductImages created.");
-// });
 
 export default ProductImages;

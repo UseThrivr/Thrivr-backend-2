@@ -37,6 +37,12 @@ User.init(
       defaultValue: false
     },
 
+    wallet_balance: {
+      type: DataTypes.DECIMAL(20, 2),
+      allowNull: false,
+      defaultValue: 0.00
+    },
+
     role: {
       type: DataTypes.STRING,
       defaultValue: 'user',
@@ -48,9 +54,5 @@ User.init(
     tableName: "users",
   }
 );
-
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table users created.");
-// });
 
 export default User;

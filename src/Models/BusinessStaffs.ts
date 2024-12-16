@@ -71,8 +71,5 @@ BusinessStaffs.init(
   }
 );
 
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table businessStaffs created.");
-// });
 
 export default BusinessStaffs;

@@ -8,7 +8,7 @@ import Settings from "../Models/storeSettings";
 import Customer from "../Models/Customer";
 import Group from "../Models/Group";
 import BusinessStaffs from "../Models/BusinessStaffs";
-import { error } from "console";
+const nodemailer = require("nodemailer");
 import User from "../Models/Users";
 
 interface addProductRequest {
@@ -44,6 +44,143 @@ interface ActionsInterface {
   getDashboard: Function;
   deleteAccount: Function;
 }
+
+const addToWallet = (userId: number, amount: number) => {
+  Business.increment("wallet_balance", {
+    by: amount,
+    where: { id: userId },
+  })
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
+
+const transporter = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT,
+  secure: true,
+  auth: {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+  },
+});
+
+// const productPurchaseMail = async (
+//   email: string,
+//   name: string,
+//   otp: number
+// ) => {
+//   try {
+//     const mailOptions = {
+//       from: "Thrivr <no-reply@thrivr.com>",
+//       to: email,
+//       subject: "Verify your Identity",
+//       html: `<!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//         <meta charset="UTF-8">
+//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//         <title>Order Confirmation</title>
+//         <style>
+//             body {
+//                 font-family: Arial, sans-serif;
+//                 background-color: #f9f9f9;
+//                 margin: 0;
+//                 padding: 20px;
+//             }
+//             .container {
+//                 background-color: #fff;
+//                 padding: 20px;
+//                 border-radius: 10px;
+//                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+//                 max-width: 600px;
+//                 margin: 0 auto;
+//             }
+//             h1 {
+//                 color: #333;
+//                 font-size: 24px;
+//                 margin-bottom: 10px;
+//             }
+//             h4 {
+//                 color: #555;
+//                 font-size: 18px;
+//             }
+//             .order-details {
+//                 font-size: 16px;
+//                 background-color: #f0f8ff;
+//                 padding: 15px;
+//                 border-radius: 8px;
+//                 margin: 15px 0;
+//                 line-height: 1.6;
+//             }
+//             p {
+//                 color: #666;
+//                 font-size: 16px;
+//                 line-height: 1.8;
+//             }
+//             .footer {
+//                 margin-top: 30px;
+//                 font-size: 14px;
+//                 color: #999;
+//             }
+//             .btn {
+//                 display: inline-block;
+//                 margin-top: 20px;
+//                 padding: 10px 20px;
+//                 background-color: #007BFF;
+//                 color: #fff;
+//                 text-decoration: none;
+//                 border-radius: 5px;
+//                 font-size: 16px;
+//             }
+//             .btn:hover {
+//                 background-color: #0056b3;
+//             }
+//         </style>
+//     </head>
+//     <body>
+//         <div class="container">
+//             <h1>Hi ${name.split(" ").length > 1 ? name.split(" ")[0] : name},</h1>
+//             <p>Thank you for shopping with Thrivr! We're excited to let you know that we've received your order and it's being processed.</p>
+//             <h4>Order Details</h4>
+//             <div class="order-details">
+//                 <p><strong>Order Number:</strong> ${orderNumber}</p>
+//                 <p><strong>Items:</strong></p>
+//                 <ul>
+//                     ${items
+//                       .map(
+//                         (item) =>
+//                           `<li>${item.name} - $${item.price} x ${item.quantity}</li>`
+//                       )
+//                       .join("")}
+//                 </ul>
+//                 <p><strong>Total:</strong> $${total}</p>
+//             </div>
+//             <p>You'll receive another email as soon as your order ships. If you have any questions or need help, feel free to <a href="${supportLink}" class="btn">Contact Support</a>.</p>
+//             <div class="footer">
+//                 Best regards,<br>
+//                 The Thrivr Team
+//             </div>
+//         </div>
+//     </body>
+//     </html>
+// `,
+//     };
+
+//     transporter.sendMail(mailOptions, async (error: any, info: any) => {
+//       if (error) {
+//         console.log("error");
+//       } else {
+//         return true;
+//       }
+//     });
+//   } catch (error) {
+//     return "Error sending mail";
+//   }
+// };
 
 const Actions: ActionsInterface = {
   addProduct: async (
@@ -229,13 +366,21 @@ const Actions: ActionsInterface = {
         } else {
           await Orders.findOne({
             where: { id: id },
-          }).then((order) => {
+          }).then(async (order) => {
             if (!order) {
               return res.status(404).json({
                 error: "The order you requested for does not exist. 😓",
               });
             } else {
-              return res.status(200).json({ success: true, data: order });
+              let newOrder:any = order;
+
+              Products.findOne({where: {id: order.dataValues.product_id}}).then(product => {
+                newOrder.product = product?.dataValues;
+                
+                return res.status(200).json({ success: true, data: newOrder });
+              }).catch(() => {
+                return res.status(500).json({error: 'Server error.'});
+              })
             }
           });
         }
@@ -245,63 +390,117 @@ const Actions: ActionsInterface = {
     }
   },
 
-  makeOrder: async(req: Request & afterBusinessVerificationMiddleware,
-    res: Response) => {
-      const { product_id, customer_name, customers_contact, sales_channel, payment_channel, order_date, payment_status, note } = req.body;
-      const user = req.user;
-      const business_id = user.id;
+  makeOrder: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    const {
+      product_id,
+      customer_name,
+      customers_contact,
+      sales_channel,
+      payment_channel,
+      order_date,
+      payment_status,
+      note,
+    } = req.body;
+    const user = req.user;
+    const business_id = user.id;
 
-      if (!user || !business_id) {
-        return res.status(401).json({ eerroerror: "Unauthorized access." });
-      }
+    if (!user || !business_id) {
+      return res.status(401).json({ eerroerror: "Unauthorized access." });
+    }
 
-      if(!product_id || !customer_name || !customers_contact || !sales_channel || !payment_channel || !order_date || !payment_status){
-        return res.status(400).json({error: 'Bad request.'});
-      }
+    if (
+      !product_id ||
+      !customer_name ||
+      !customers_contact ||
+      !sales_channel ||
+      !payment_channel ||
+      !order_date ||
+      !payment_status
+    ) {
+      return res.status(400).json({ error: "Bad request." });
+    }
 
-      Orders.create({
-        product_id: product_id,
-        business_id: business_id,
-        customer_name: customer_name,
-        customers_contact: customers_contact,
-        sales_channel: sales_channel,
-        payment_channel: payment_channel,
-        order_date: order_date,
-        payment_status: payment_status,
-        note: note
-      }).then((order) => {
-        return res.status(201).json({success: true, data: order.dataValues});
+    Orders.create({
+      product_id: product_id,
+      business_id: business_id,
+      customer_name: customer_name,
+      customers_contact: customers_contact,
+      sales_channel: sales_channel,
+      payment_channel: payment_channel,
+      order_date: order_date,
+      payment_status: payment_status,
+      note: note,
+    })
+      .then((order) => {
+        Products.findOne({ where: { id: product_id } })
+          .then((product) => {
+            if (payment_status == "paid") {
+              addToWallet(business_id, product?.price as any);
+            }
+            return res
+              .status(201)
+              .json({ success: true, data: order.dataValues });
+          })
+          .catch(() => {
+            return res.status(500).json({ error: "Server error." });
+          });
       })
       .catch(() => {
-        return res.status(500).json({error: 'Server error'});
+        return res.status(500).json({ error: "Server error" });
       });
   },
 
-  updateOrder: async (req: Request & afterBusinessVerificationMiddleware,
-    res: Response) => {
-      const { id } = req.params;
-      const {payment_status} = req.body;
-      const user = req.user;
-      const business_id = user.id;
+  updateOrder: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    const { id } = req.params;
+    const { payment_status } = req.body;
+    const user = req.user;
+    const business_id = user.id;
 
-      if (!user || !business_id) {
-        return res.status(401).json({ eerroerror: "Unauthorized access." });
+    if (!user || !business_id) {
+      return res.status(401).json({ eerroerror: "Unauthorized access." });
+    }
+
+    if (!id || !payment_status) {
+      return res.status(400).json({ error: "Bad request." });
+    }
+
+    Orders.findOne({ where: { id: id } }).then((order) => {
+      if (order?.payment_status == "paid") {
+        return res
+          .status(409)
+          .json({ error: "conflict", message: "Order already paid for." });
       }
+    });
 
-      if(!id || !payment_status){
-        return res.status(400).json({error: 'Bad request.'});
-      }
-
-      Orders.update({payment_status: payment_status}, {where: {id: id}}).then((order) => {
-        Orders.findOne({where: {id: id}}).then((gotten_order) =>{
-          return res.status(200).json({success: true, data: gotten_order});
-        })
-        .catch(() => {
-          return res.status(500).json({error: 'Server error'});
-        });
+    Orders.update({ payment_status: payment_status }, { where: { id: id } })
+      .then((order) => {
+        Orders.findOne({ where: { id: id } })
+          .then((gotten_order) => {
+            const product = Products.findOne({
+              where: { id: (gotten_order as any)?.product_id },
+            })
+              .then((product) => {
+                addToWallet(business_id, product?.price as any);
+                return res
+                  .status(200)
+                  .json({ success: true, data: gotten_order });
+              })
+              .catch(() => {
+                return res.status(500).json({ error: "Server error." });
+              });
+          })
+          .catch(() => {
+            return res.status(500).json({ error: "Server error" });
+          });
       })
       .catch(() => {
-        return res.status(500).json({error: 'Server error'});
+        return res.status(500).json({ error: "Server error" });
       });
   },
 
@@ -338,15 +537,15 @@ const Actions: ActionsInterface = {
                 const { password, createdAt, updatedAt, ...businessOut } =
                   business?.dataValues;
                 businessOut.products = products;
-                return res.status(200).json({ success: true, data: businessOut });
+                return res
+                  .status(200)
+                  .json({ success: true, data: businessOut });
               })
               .catch(() => {
-                return res
-                  .status(500)
-                  .json({
-                    error: "Server error.",
-                    message: "Error fetching details.",
-                  });
+                return res.status(500).json({
+                  error: "Server error.",
+                  message: "Error fetching details.",
+                });
               });
           } else {
             return res.status(404).json({ error: "Business not found." });
@@ -379,7 +578,9 @@ const Actions: ActionsInterface = {
                 where: { email: user.email, business_id: id },
               }).then((staff) => {
                 if (!staff) {
-                  return res.status(200).json({ success: true, data: businessOut });
+                  return res
+                    .status(200)
+                    .json({ success: true, data: businessOut });
                 } else {
                   let values = staff.dataValues;
                   businessOut.isStaff = true;
@@ -396,17 +597,16 @@ const Actions: ActionsInterface = {
                     can_view_business_reports:
                       values.business_reports == true ? true : false,
                   };
-                  return res.status(200).json({ success: true, data: businessOut });
+                  return res
+                    .status(200)
+                    .json({ success: true, data: businessOut });
                 }
               });
             })
             .catch(() => {
-              return res
-                .status(500)
-                .json({
-                  error: "Server error.",
-                  message: "Error fetching details.",
-                });
+              return res.status(404).json({
+                error: "Business not found.",
+              });
             });
         })
         .catch(() => {
@@ -771,7 +971,9 @@ const Actions: ActionsInterface = {
         business_id: business_id,
       }).then((customer) => {
         if (customer) {
-          return res.status(201).json({ sucess: true, data: customer.dataValues });
+          return res
+            .status(201)
+            .json({ sucess: true, data: customer.dataValues });
         } else {
           return res.status(500).json({ error: "Server error." });
         }
@@ -910,12 +1112,10 @@ const Actions: ActionsInterface = {
               return res.status(500).json({ error: "Server error." });
             });
         } else {
-          return res
-            .status(409)
-            .json({
-              error: "Staff exists",
-              message: "A staff with this email already exists.",
-            });
+          return res.status(409).json({
+            error: "Staff exists",
+            message: "A staff with this email already exists.",
+          });
         }
       });
     }
@@ -928,16 +1128,15 @@ const Actions: ActionsInterface = {
     const user = req.user;
     const business_id = user.id;
 
-    if(!user || !business_id){
-      return res.status(401).json({error: 'Unauthorized access.'});
+    if (!user || !business_id) {
+      return res.status(401).json({ error: "Unauthorized access." });
     }
 
-    Business.findOne({where: {id: business_id}}).then(() => {
-
-    })
-    .catch(() => {
-      return res.status(500).json({error: 'Server error.'});
-    });
+    Business.findOne({ where: { id: business_id } })
+      .then(() => {})
+      .catch(() => {
+        return res.status(500).json({ error: "Server error." });
+      });
   },
 
   deleteAccount: async (
@@ -947,17 +1146,20 @@ const Actions: ActionsInterface = {
     const user = req.user;
     const business_id = user.id;
 
-    if(!user || !business_id){
-      return res.status(401).json({error: 'Unauthorized access.'});
+    if (!user || !business_id) {
+      return res.status(401).json({ error: "Unauthorized access." });
     }
 
-    User.update({deleted: true}, {where: {id: business_id}}).then(() => {
-      return res.status(204).json({success: true, message: 'Account deleted successfully'});
-    })
-    .catch(() => {
-      return res.status(500).json({error: 'Server errror'});
-    });
-  }
+    User.update({ deleted: true }, { where: { id: business_id } })
+      .then(() => {
+        return res
+          .status(204)
+          .json({ success: true, message: "Account deleted successfully" });
+      })
+      .catch(() => {
+        return res.status(500).json({ error: "Server errror" });
+      });
+  },
 };
 
 export default Actions;

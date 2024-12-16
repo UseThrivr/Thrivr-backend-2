@@ -26,8 +26,9 @@ Products.init(
     },
 
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL(20, 2),
       allowNull: false,
+      defaultValue: 0.00
     },
 
     category: {
@@ -66,10 +67,6 @@ Products.init(
     tableName: "products",
   }
 );
-
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table products created.");
-// });
 
 
 Products.hasMany(ProductImages, {

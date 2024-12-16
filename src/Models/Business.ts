@@ -62,6 +62,12 @@ Business.init(
       allowNull: false,
     },
 
+    wallet_balance: {
+      type: DataTypes.DECIMAL(20, 2),
+      allowNull: false,
+      defaultValue: 0.00
+    },
+
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -92,10 +98,5 @@ Business.hasMany(Group, {
   onDelete: 'CASCADE',    // Optional: set cascading delete
 });
 
-
-// Sync the table with the database
-// sequelize.sync({ alter: true }).then(() => {
-//   console.log("Table business created.");
-// });
 
 export default Business;

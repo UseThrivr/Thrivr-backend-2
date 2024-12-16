@@ -711,14 +711,143 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "success": true,
-  "data": {
-    "businessId": "number",
-    "name": "string",
-    "email": "string",
-    "address": "string",
-    "contact": "string"
-  }
+    "success": true,
+    "data": {
+        "id": 1,
+        "full_name": "John doe",
+        "business_name": "John's Shoes",
+        "location": "Ojo, Lagos Nigeria.",
+        "email": "abc123@gmail.com",
+        "phone_number": "+2349087987468",
+        "description": "We sell shoes",
+        "image_path": "",
+        "wallet_balance": "400000.00",
+        "role": "business",
+        "Settings": [
+            {
+                "id": 1,
+                "banner_image": "banner",
+                "theme": "dark",
+                "working_days": "mon-friday",
+                "opening_hours": "10-12",
+                "currency": "NGN",
+                "store_id": 1,
+                "createdAt": "2024-12-01T14:45:04.000Z",
+                "updatedAt": "2024-12-01T16:14:30.000Z"
+            }
+        ],
+        "Groups": [
+            {
+                "id": 1,
+                "name": "ashiru sheriff",
+                "store_id": 1,
+                "createdAt": "2024-12-01T15:31:35.000Z",
+                "updatedAt": "2024-12-01T15:31:35.000Z"
+            }
+        ],
+        "products": [
+            {
+                "id": 1,
+                "name": "Nike wig",
+                "price": "200000.00",
+                "category": "wig",
+                "description": "The nike airforce wig",
+                "purchaseDate": "29-10-2024",
+                "supplier": "Sheriff closet",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:45:46.000Z",
+                "updatedAt": "2024-12-01T14:45:46.000Z"
+            },
+            {
+                "id": 2,
+                "name": "Nike wig",
+                "price": "200000.00",
+                "category": "wig",
+                "description": "The nike airforce wig",
+                "purchaseDate": "29-10-2024",
+                "supplier": "Sheriff closet",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:47:36.000Z",
+                "updatedAt": "2024-12-01T14:47:36.000Z"
+            },
+            {
+                "id": 3,
+                "name": "Nike wig",
+                "price": "200000.00",
+                "category": "wig",
+                "description": "The nike airforce wig",
+                "purchaseDate": "29-10-2024",
+                "supplier": "Sheriff closet",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:47:38.000Z",
+                "updatedAt": "2024-12-01T14:47:38.000Z"
+            },
+            {
+                "id": 4,
+                "name": "Nike wig",
+                "price": "200000.00",
+                "category": "wig",
+                "description": "The nike airforce wig",
+                "purchaseDate": "29-10-2024",
+                "supplier": "Sheriff closet",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:47:38.000Z",
+                "updatedAt": "2024-12-01T14:47:38.000Z"
+            },
+            {
+                "id": 5,
+                "name": "Nike wig",
+                "price": "200000.00",
+                "category": "wig",
+                "description": "The nike airforce wig",
+                "purchaseDate": "29-10-2024",
+                "supplier": "Sheriff closet",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:47:39.000Z",
+                "updatedAt": "2024-12-01T14:47:39.000Z"
+            },
+            {
+                "id": 6,
+                "name": "Nike shoes",
+                "price": "200000.00",
+                "category": "shoes",
+                "description": "cool shoes",
+                "purchaseDate": "29-10-2024",
+                "supplier": "ode",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:55:20.000Z",
+                "updatedAt": "2024-12-01T14:55:20.000Z"
+            },
+            {
+                "id": 7,
+                "name": "Nike shoes",
+                "price": "200000.00",
+                "category": "shoes",
+                "description": "cool shoes",
+                "purchaseDate": "29-10-2024",
+                "supplier": "ode",
+                "business_id": 1,
+                "amount_left": 0,
+                "createdAt": "2024-12-01T14:56:18.000Z",
+                "updatedAt": "2024-12-01T14:56:18.000Z"
+            }
+        ],
+        "isStaff": true,
+        "permissions": {
+            "edit_products": true,
+            "can_manage_payments": true,
+            "can_edit_store_settings": true,
+            "can_view_and_edit_orders": true,
+            "can_view_and_Edit_customers": true,
+            "can_view_business_reports": true
+        }
+    }
 }
 ```
 
@@ -964,7 +1093,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-  "product_id": "number",
+  "product_id": "array of product id's", // [12, 10, 9]
   "business_id": "string",
   "role": "string",
   "customer_name": "string",
@@ -1051,6 +1180,16 @@ If id is provided, it returns the task with the particular id and if not it retu
         "updatedAt": "2024-12-07T09:17:26.322Z",
         "createdAt": "2024-12-07T09:17:26.322Z"
     }
+}
+```
+
+**Error message**
+- **Code** 409
+- **ccontent:**
+```json
+{
+  "error": "conflict", 
+  "message": "Order already paid for."
 }
 ```
 

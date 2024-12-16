@@ -146,6 +146,8 @@ const sendForgotEmail = async (email: string, name: string) => {
     return "Error sending mail";
   }
 };
+
+
 const sendOTP = async (email: string, name: string, otp: number) => {
   try {
     const mailOptions = {
