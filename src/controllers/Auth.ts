@@ -347,7 +347,7 @@ const Auth: Auth = {
               description: description,
               password: enc,
               image_path: image_path
-            }).then((user) => {
+            }).then((user: any) => {
               Settings.create({
                 store_id: user.id
               }).then((settings) => {

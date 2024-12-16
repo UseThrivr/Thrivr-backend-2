@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import ProductImages from "./ProductImages";
+import Business from "./Business";
 const sequelize = require("./../setup/Sequelize");
 
 class Products extends Model {
@@ -54,6 +55,10 @@ Products.init(
     business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Business,
+        key: 'id',
+      },
     },
 
     amount_left: {
@@ -67,11 +72,5 @@ Products.init(
     tableName: "products",
   }
 );
-
-
-Products.hasMany(ProductImages, {
-  foreignKey: 'product_id', // Assuming 'store_id' is used in Settings as a reference to Business
-  sourceKey: 'id',
-});
 
 export default Products;

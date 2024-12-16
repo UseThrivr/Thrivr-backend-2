@@ -1,7 +1,9 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
 const sequelize = require("./../setup/Sequelize");
 import Settings from "./storeSettings"; // Assuming Settings is in the same directory
 import Group from "./Group";
+import Products from "./Product";
+import Orders from "./Order";
 
 class Business extends Model {
   public id!: number;
@@ -84,19 +86,5 @@ Business.init(
     tableName: "business",
   }
 );
-
-// Define the association: A Business has one Settings
-Business.hasMany(Settings, {
-  foreignKey: 'store_id', // Assuming 'store_id' is used in Settings as a reference to Business
-  sourceKey: 'id',
-  onDelete: 'CASCADE'
-});
-
-Business.hasMany(Group, {
-  foreignKey: 'store_id', // Reference column in Staff
-  sourceKey: 'id',        // Primary key in Business
-  onDelete: 'CASCADE',    // Optional: set cascading delete
-});
-
 
 export default Business;

@@ -10,6 +10,8 @@ import Group from "../Models/Group";
 import BusinessStaffs from "../Models/BusinessStaffs";
 const nodemailer = require("nodemailer");
 import User from "../Models/Users";
+import orderProducts from "../Models/orderDetails";
+import { Op, where } from "sequelize";
 
 interface addProductRequest {
   name: string;
@@ -313,6 +315,12 @@ const Actions: ActionsInterface = {
               model: ProductImages,
               required: false,
             },
+            {
+              model: Business,
+              required: true,
+              as: 'business',
+              attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
+            }
           ],
         }).then((product) => {
           if (!product) {
@@ -348,7 +356,7 @@ const Actions: ActionsInterface = {
             if (!business) {
               return res.status(404).json({ error: "Business does not exist" });
             } else {
-              Orders.findAll({ where: { business_id: business_id } }).then(
+              Orders.findAll({ where: { business_id: business_id },  }).then(
                 (fetchedOrders) => {
                   if (fetchedOrders) {
                     return res
@@ -366,26 +374,39 @@ const Actions: ActionsInterface = {
         } else {
           await Orders.findOne({
             where: { id: id },
+            include: [
+              {
+                model: Business,
+                required: false,
+                as: 'business',
+                attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
+              }
+            ]
           }).then(async (order) => {
             if (!order) {
               return res.status(404).json({
                 error: "The order you requested for does not exist. 😓",
               });
             } else {
-              let newOrder:any = order;
+              let newOrder = order.dataValues;
+              const order_products = await orderProducts.findAll({
+                where: { order_id: order.dataValues.id },
+                attributes: ['product_id']
+              });
+              const productIds = order_products.map(item => item.product_id);
+              const products = await Products.findAll({
+                where: { id: { [Op.in]: productIds } }
+              });
 
-              Products.findOne({where: {id: order.dataValues.product_id}}).then(product => {
-                newOrder.product = product?.dataValues;
-                
-                return res.status(200).json({ success: true, data: newOrder });
-              }).catch(() => {
-                return res.status(500).json({error: 'Server error.'});
-              })
+              newOrder.products = products;
+
+              return res.status(200).json({ success: true, data: newOrder });
             }
           });
         }
       }
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ error: "Server error." });
     }
   },
@@ -395,7 +416,7 @@ const Actions: ActionsInterface = {
     res: Response
   ) => {
     const {
-      product_id,
+      product_ids,
       customer_name,
       customers_contact,
       sales_channel,
@@ -412,7 +433,7 @@ const Actions: ActionsInterface = {
     }
 
     if (
-      !product_id ||
+      !product_ids ||
       !customer_name ||
       !customers_contact ||
       !sales_channel ||
@@ -424,7 +445,6 @@ const Actions: ActionsInterface = {
     }
 
     Orders.create({
-      product_id: product_id,
       business_id: business_id,
       customer_name: customer_name,
       customers_contact: customers_contact,
@@ -434,21 +454,37 @@ const Actions: ActionsInterface = {
       payment_status: payment_status,
       note: note,
     })
-      .then((order) => {
-        Products.findOne({ where: { id: product_id } })
-          .then((product) => {
-            if (payment_status == "paid") {
-              addToWallet(business_id, product?.price as any);
+      .then(async (order) => {
+        let products: Products[] = [];
+        await product_ids.map((product:number) => {
+          Products.findOne({where: {id: product}, include: [
+            {
+              model: Business,
+              required: false,
+              as: 'business',
+              attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
             }
-            return res
-              .status(201)
-              .json({ success: true, data: order.dataValues });
+          ],}).then((product: any) => {
+            products.push(product?.dataValues);
+            console.log(products)
+            addToWallet(business_id, parseInt(product?.dataValues.price));
           })
-          .catch(() => {
-            return res.status(500).json({ error: "Server error." });
+        });
+
+        console.log(products);
+
+        product_ids.forEach((product_id:any) => {
+          orderProducts.create({
+            order_id: order.dataValues.id,
+            product_id: product_id
           });
+        });
+        return res
+          .status(201)
+          .json({ success: true, data: order.dataValues });
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error(error)
         return res.status(500).json({ error: "Server error" });
       });
   },
@@ -530,7 +566,7 @@ const Actions: ActionsInterface = {
           },
         ],
       })
-        .then((business) => {
+        .then((business: any) => {
           if (business) {
             Products.findAll({ where: { business_id: id } })
               .then((products) => {
@@ -568,7 +604,7 @@ const Actions: ActionsInterface = {
           },
         ],
       })
-        .then((business) => {
+        .then((business: any) => {
           Products.findAll({ where: { business_id: id } })
             .then((products) => {
               const { password, createdAt, updatedAt, ...businessOut } =
@@ -926,7 +962,7 @@ const Actions: ActionsInterface = {
             },
           ],
         })
-          .then((updatedUser) => {
+          .then((updatedUser: any) => {
             // Check if the user exists
             if (!updatedUser) {
               return res.status(404).json({ error: "User not found." });

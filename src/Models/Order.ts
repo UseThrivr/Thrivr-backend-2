@@ -1,4 +1,5 @@
 import { DataTypes, Model } from "sequelize";
+import Business from "./Business";
 const sequelize = require('./../setup/Sequelize');
 
 class Orders extends Model {
@@ -19,13 +20,13 @@ Orders.init(
             autoIncrement: true,
             primaryKey:true,
         },
-        product_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
         business_id: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: Business,
+                key: 'id',
+            },
         },
         customer_name: {
             type: DataTypes.STRING,
@@ -65,8 +66,5 @@ Orders.init(
 )
 
 
-// sequelize.sync({ alter: true }).then(() => {
-//     console.log('Table Orders created.');
-// });
 
 export default Orders;

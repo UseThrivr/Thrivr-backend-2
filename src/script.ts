@@ -2,6 +2,12 @@ import dotenv from "dotenv";
 import Auth from "./controllers/Auth";
 import middlewares from "./middlewares/verifyToken";
 import Actions from "./controllers/BusinessAction";
+import Products from "./Models/Product";
+import Business from "./Models/Business";
+import ProductImages from "./Models/ProductImages";
+import Orders from "./Models/Order";
+import Settings from "./Models/storeSettings";
+import Group from "./Models/Group";
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
@@ -144,6 +150,49 @@ app.delete("/api/v1/user", middlewares.verifyBusiness, Actions.deleteAccount);
 // TO-DO: i did make order route, update order
 //get dashboard route
 
+
+
+// foreign key relation to avoid circular dependeency
+Products.belongsTo(Business, {
+  foreignKey: "business_id",
+  as: "business",
+});
+
+
+Products.hasMany(ProductImages, {
+  foreignKey: 'product_id', // Assuming 'store_id' is used in Settings as a reference to Business
+  sourceKey: 'id',
+});
+
+Orders.belongsTo(Business, {
+  foreignKey: "business_id",
+  as: "orders", // Alias for eager loading
+});
+
+
+Business.hasMany(Settings, {
+  foreignKey: 'store_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+Business.hasMany(Products, {
+  foreignKey: 'business_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+Business.hasMany(Orders, {
+  foreignKey: 'business_id',
+  sourceKey: 'id',
+  onDelete: 'CASCADE'
+});
+
+Business.hasMany(Group, {
+  foreignKey: 'store_id',
+  sourceKey: 'id',     
+  onDelete: 'CASCADE',   
+});
 
 
 const startServer = async () => {
