@@ -69,7 +69,8 @@ else{
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        ca: fs.readFileSync('./ca.pem')
       }
     }
   });
