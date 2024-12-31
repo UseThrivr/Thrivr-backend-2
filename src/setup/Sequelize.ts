@@ -74,8 +74,7 @@ hj6DPiyqXM6rT841UMcyfrG9rh88H+lTtQVln9/CQyXk4leDTA==
         ssl: {
           require: true,
           rejectUnauthorized: false,  // Disables certificate validation
-          ca: `
-            -----BEGIN CERTIFICATE-----
+          ca: `-----BEGIN CERTIFICATE-----
 MIIEQTCCAqmgAwIBAgIUO15GOfNs00gwJOkIBSiSUGvKm7AwDQYJKoZIhvcNAQEM
 BQAwOjE4MDYGA1UEAwwvZDg4ODM3M2UtZjNjOS00NDRhLWI4NTktNWQzM2JmOWZj
 MWYxIFByb2plY3QgQ0EwHhcNMjQxMjMxMTEwMzA0WhcNMzQxMjI5MTEwMzA0WjA6
@@ -99,9 +98,7 @@ Sy9UnGaGBKhfPYai3wdAVR9qjNTPnYulr5rMHYk68w8c9dclowKzr0aebNTXKDhU
 8C43QpidCPSlVZzxyc3ZakefPyKeZZ+IAEWQr/BhqSzV0y/5HrjNBlql6C6CqESe
 3Rz3BU/3RBRUR7jBRF2uFKCT/EOe6PBtn5AlIigPPOZ01UFOygqQYQVhdi2rkGfl
 hj6DPiyqXM6rT841UMcyfrG9rh88H+lTtQVln9/CQyXk4leDTA==
------END CERTIFICATE-----
-
-          `
+-----END CERTIFICATE-----`
         },
       },
     });
