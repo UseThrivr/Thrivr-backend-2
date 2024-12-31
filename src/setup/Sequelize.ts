@@ -1,6 +1,9 @@
 const { Sequelize } = require('sequelize');
 import dotenv from "dotenv";
 import fs from "fs";
+const path = require('path');
+
+
 dotenv.config();
 
 const DB_NAME = process.env.DB_NAME;
@@ -63,6 +66,8 @@ if(NODE_ENV == 'dev'){
 }
 else{
   const DATABASE_URL = process.env.DATABASE_URL;
+  const caPath = path.resolve(__dirname, 'ca.pem');
+
 
   const sequelize = new Sequelize(DATABASE_URL, {
     dialect: 'postgres',
@@ -70,7 +75,7 @@ else{
       ssl: {
         require: true,
         rejectUnauthorized: false,
-        ca: fs.readFileSync('./ca.pem')
+        ca: fs.readFileSync(caPath)
       }
     }
   });
