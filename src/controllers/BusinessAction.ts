@@ -24,7 +24,7 @@ interface addProductRequest {
 }
 
 interface afterBusinessVerificationMiddleware {
-  user: { id?: number; role?: string; email?: string };
+  user: { id: number; role: string; full_name:string, email: string };
 }
 
 interface ActionsInterface {
@@ -70,119 +70,124 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// const productPurchaseMail = async (
-//   email: string,
-//   name: string,
-//   otp: number
-// ) => {
-//   try {
-//     const mailOptions = {
-//       from: "Thrivr <no-reply@thrivr.com>",
-//       to: email,
-//       subject: "Verify your Identity",
-//       html: `<!DOCTYPE html>
-//     <html lang="en">
-//     <head>
-//         <meta charset="UTF-8">
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//         <title>Order Confirmation</title>
-//         <style>
-//             body {
-//                 font-family: Arial, sans-serif;
-//                 background-color: #f9f9f9;
-//                 margin: 0;
-//                 padding: 20px;
-//             }
-//             .container {
-//                 background-color: #fff;
-//                 padding: 20px;
-//                 border-radius: 10px;
-//                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-//                 max-width: 600px;
-//                 margin: 0 auto;
-//             }
-//             h1 {
-//                 color: #333;
-//                 font-size: 24px;
-//                 margin-bottom: 10px;
-//             }
-//             h4 {
-//                 color: #555;
-//                 font-size: 18px;
-//             }
-//             .order-details {
-//                 font-size: 16px;
-//                 background-color: #f0f8ff;
-//                 padding: 15px;
-//                 border-radius: 8px;
-//                 margin: 15px 0;
-//                 line-height: 1.6;
-//             }
-//             p {
-//                 color: #666;
-//                 font-size: 16px;
-//                 line-height: 1.8;
-//             }
-//             .footer {
-//                 margin-top: 30px;
-//                 font-size: 14px;
-//                 color: #999;
-//             }
-//             .btn {
-//                 display: inline-block;
-//                 margin-top: 20px;
-//                 padding: 10px 20px;
-//                 background-color: #007BFF;
-//                 color: #fff;
-//                 text-decoration: none;
-//                 border-radius: 5px;
-//                 font-size: 16px;
-//             }
-//             .btn:hover {
-//                 background-color: #0056b3;
-//             }
-//         </style>
-//     </head>
-//     <body>
-//         <div class="container">
-//             <h1>Hi ${name.split(" ").length > 1 ? name.split(" ")[0] : name},</h1>
-//             <p>Thank you for shopping with Thrivr! We're excited to let you know that we've received your order and it's being processed.</p>
-//             <h4>Order Details</h4>
-//             <div class="order-details">
-//                 <p><strong>Order Number:</strong> ${orderNumber}</p>
-//                 <p><strong>Items:</strong></p>
-//                 <ul>
-//                     ${items
-//                       .map(
-//                         (item) =>
-//                           `<li>${item.name} - $${item.price} x ${item.quantity}</li>`
-//                       )
-//                       .join("")}
-//                 </ul>
-//                 <p><strong>Total:</strong> $${total}</p>
-//             </div>
-//             <p>You'll receive another email as soon as your order ships. If you have any questions or need help, feel free to <a href="${supportLink}" class="btn">Contact Support</a>.</p>
-//             <div class="footer">
-//                 Best regards,<br>
-//                 The Thrivr Team
-//             </div>
-//         </div>
-//     </body>
-//     </html>
-// `,
-//     };
+const productPurchaseMail = async (
+  email: string,
+  name: string,
+  products: Products [],
+  orderNumber: string
+) => {
+  try {
+    let total = 0;
+    products.forEach(product => {
+      total = total + parseFloat(product.price);
+    });
+    const mailOptions = {
+      from: "Thrivr <no-reply@thrivr.com>",
+      to: email,
+      subject: "Thank You for Your Purchase! 🍾",
+      html: `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Order Confirmation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 0;
+                padding: 20px;
+            }
+            .container {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            h1 {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            h4 {
+                color: #555;
+                font-size: 18px;
+            }
+            .order-details {
+                font-size: 16px;
+                background-color: #f0f8ff;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 15px 0;
+                line-height: 1.6;
+            }
+            p {
+                color: #666;
+                font-size: 16px;
+                line-height: 1.8;
+            }
+            .footer {
+                margin-top: 30px;
+                font-size: 14px;
+                color: #999;
+            }
+            .btn {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #007BFF;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            .btn:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Hi ${name.split(" ").length > 1 ? name.split(" ")[0] : name},</h1>
+            <p>Thank you for shopping with Thrivr! We're excited to let you know that we've received your order and it's being processed.</p>
+            <h4>Order Details</h4>
+            <div class="order-details">
+                <p><strong>Order Number:</strong> ${orderNumber}</p>
+                <p><strong>Items:</strong></p>
+                <ul>
+                    ${products
+                      .map(
+                        (item) =>
+                          `<li>${item.name} - ₦${item.price}</li>`
+                      )
+                      .join("")}
+                </ul>
+                <p><strong>Total:</strong> ₦${total}</p>
+            </div>
+            <p>You'll receive another email as soon as your order ships. If you have any questions or need help, feel free to <a href="${`dhjdjdjk`}" class="btn">Contact Support</a>.</p>
+            <div class="footer">
+                Best regards,<br>
+                The Thrivr Team
+            </div>
+        </div>
+    </body>
+    </html>
+`,
+    };
 
-//     transporter.sendMail(mailOptions, async (error: any, info: any) => {
-//       if (error) {
-//         console.log("error");
-//       } else {
-//         return true;
-//       }
-//     });
-//   } catch (error) {
-//     return "Error sending mail";
-//   }
-// };
+    transporter.sendMail(mailOptions, async (error: any, info: any) => {
+      if (error) {
+        console.log("error");
+      } else {
+        return true;
+      }
+    });
+  } catch (error) {
+    return "Error sending mail";
+  }
+};
 
 const Actions: ActionsInterface = {
   addProduct: async (
@@ -456,22 +461,24 @@ const Actions: ActionsInterface = {
     })
       .then(async (order) => {
         let products: Products[] = [];
-        await product_ids.map((product:number) => {
-          Products.findOne({where: {id: product}, include: [
-            {
-              model: Business,
-              required: false,
-              as: 'business',
-              attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
-            }
-          ],}).then((product: any) => {
-            products.push(product?.dataValues);
-            console.log(products)
-            addToWallet(business_id, parseInt(product?.dataValues.price));
+        await Promise.all(
+          product_ids.map(async (product: Products, index: number) => {
+            const productData = await Products.findOne({
+              where: { id: product },
+              include: [
+                {
+                  model: Business,
+                  required: false,
+                  as: 'business',
+                  attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
+                },
+              ],
+            });
+        
+            products.push(productData?.dataValues);
+            addToWallet(business_id, parseInt(productData?.dataValues.price));
           })
-        });
-
-        console.log(products);
+        );
 
         product_ids.forEach((product_id:any) => {
           orderProducts.create({
@@ -479,6 +486,8 @@ const Actions: ActionsInterface = {
             product_id: product_id
           });
         });
+
+        productPurchaseMail(user.email, user.full_name, products, order.dataValues.id)
         return res
           .status(201)
           .json({ success: true, data: order.dataValues });

@@ -263,7 +263,7 @@ const Auth: Auth = {
           userCache.set( `user:${email}`, preUser );
 
           const otp = Math.floor(1000 + Math.random() * 9000);
-          userCache.set( `otp:${email}`, otp );
+          otpCache.set( `otp:${email}`, otp );
           sendOTP(email, fullname, otp);
           return res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
@@ -279,7 +279,7 @@ const Auth: Auth = {
     try {
       const { otp, email } = req.body;
 
-      if (!otp) {
+      if (!otp || !email) {
         return res.status(400).json({ error: "Bad request." });
       } else {
         console.log(otpCache.get(`otp:${email}`))
