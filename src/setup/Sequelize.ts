@@ -38,7 +38,7 @@ if (NODE_ENV == 'dev') {
       dialect: 'postgres',
       dialectOptions: {
         ssl: {
-          rejectUnauthorized: true,
+          rejectUnauthorized: false,
           ca: `-----BEGIN CERTIFICATE-----
 MIIEQTCCAqmgAwIBAgIUO15GOfNs00gwJOkIBSiSUGvKm7AwDQYJKoZIhvcNAQEM
 BQAwOjE4MDYGA1UEAwwvZDg4ODM3M2UtZjNjOS00NDRhLWI4NTktNWQzM2JmOWZj
