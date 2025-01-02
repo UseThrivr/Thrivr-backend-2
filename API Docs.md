@@ -69,7 +69,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "fullname": "string",
+  "full_name": "string",
   "business_name": "string",
   "location": "string",
   "email": "string",
