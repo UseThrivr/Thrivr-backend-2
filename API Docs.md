@@ -107,6 +107,18 @@ Authorization: Bearer <token>
 
 ```json
 {
+  "email": "string",
+  "password": "string"
+}
+```
+
+**Success Response:**
+
+- **Code:** 200
+- **Content:**
+
+```json
+{
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZnVsbF9uYW1lIjoiQXNoaXJ1IHNoZXJpZmYiLCJidXNpbmVzc19uYW1lIjoiU2hlcmlmZidzIFNob2VzIiwibG9jYXRpb24iOiJPam8sIExhZ29zIE5pZ2VyaWEuIiwiZW1haWwiOiJsYW5yZTI5NjdAZ21haWwuY29tIiwicGhvbmVfbnVtYmVyIjoiKzIzNDkxNjQxODc0OTUiLCJkZXNjcmlwdGlvbiI6IldlIHNlbGwgc2hvZXMiLCJpbWFnZV9wYXRoIjoiIiwicm9sZSI6ImJ1c2luZXNzIiwiaWF0IjoxNzMzMDUzNDkxLCJleHAiOjE3MzMxMzk4OTF9.f76c4IpLuR6Nza86eP9i4mV5NpJaEAXul3MtUAh2iZk",
   "user": {
@@ -120,18 +132,6 @@ Authorization: Bearer <token>
     "image_path": "",
     "role": "business"
   }
-}
-```
-
-**Success Response:**
-
-- **Code:** 200
-- **Content:**
-
-```json
-{
-  "success": true,
-  "message": "Proceed to enter otp."
 }
 ```
 
