@@ -144,14 +144,6 @@ app.get("/api/v1/dashboard", middlewares.verifyBusiness, Actions.getDashboard);
 app.delete("/api/v1/user", middlewares.verifyBusiness, Actions.deleteAccount);
 
 
-
-// TO-DO: add delete account route
-// TO-DO: ADD get groups_rout
-// TO-DO: i did make order route, update order
-//get dashboard route
-
-
-
 // foreign key relation to avoid circular dependeency
 Products.belongsTo(Business, {
   foreignKey: "business_id",

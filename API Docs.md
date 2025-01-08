@@ -1075,6 +1075,60 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ### **18. Add staff to your business**
 
+**URL:** `/api/v1/staff`  
+**Method:** `POST`  
+**Description:** Add a new staff.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+- `verifyBusiness`
+
+**Request Body:**
+
+```json
+{
+    "name": "string",
+    "email": "string",
+    "role": "string",
+    "permissions": {
+        "products": "boolean",
+        "manage_payments": "boolean",
+        "edit_store_settings": "boolean",
+        "order": "boolean",
+        "customers": "boolean",
+        "business_reports": "boolean"
+    }
+}
+```
+
+**Success Response:**
+
+- **Code:** 201
+- **Content:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 2,
+        "name": "Ashiru sheriff",
+        "email": "lanre2900@gmail.com",
+        "role": "admin",
+        "products": true,
+        "manage_payments": true,
+        "store_settings": true,
+        "order": true,
+        "customers": true,
+        "business_reports": true,
+        "business_id": 1,
+        "updatedAt": "2025-01-08T15:47:27.967Z",
+        "createdAt": "2025-01-08T15:47:27.967Z"
+    }
+}
+```
+
 
 ### **19. Make an order**
 
@@ -1216,7 +1270,7 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 
 
-### **21. Delete account**
+### **22. Delete account**
 **URL:** `/api/v1/user`  
 **Method:** `DELETE`  
 **Description:** Delete current user account.  
@@ -1237,3 +1291,72 @@ If id is provided, it returns the task with the particular id and if not it retu
 {"success": true, "message": "Account deleted successfully"}
 ```
  
+
+
+### **22. Send forgot password mail**
+
+**URL:** `/api/v1/forgot-password`  
+**Method:** `POST`  
+**Description:** Add a new staff.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+- `verifyBusiness`
+
+**Request Body:**
+
+```json
+{
+    "email": "abc123@gmail.com",
+    "url": "http://example.com"  //url of the frontend website
+}
+```
+
+**Success Response:**
+
+- **Code:** 200
+- **Content:**
+
+**Workflow: once the post request is sent to this route, user receives a password reset link in the format `${frontend-url}/forgot-password?token=${token}`, the token would then be retreived by the frontend and sent alon with the request body for the reset password password route directly below this route, failur to add the token would result in an unsuccessful password reset.**
+
+```json
+{
+  "success": true,
+  "message": "Proceed to check your mail for password reset link."
+}
+```
+
+### **23. Reset the password**
+
+**URL:** `/api/v1/reset-password`  
+**Method:** `POST`  
+**Description:** Reset password.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+- `verifyBusiness`
+
+**Request Body:**
+
+```json
+{
+    "signature": "string",    //the token retrreived from the url
+    "password": "string"  //url of the frontend website
+}
+```
+
+**Success Response:**
+
+- **Code:** 200
+- **Content:**
+
+```json
+{
+  "success": true,
+  "message": "Password changed successfully."
+}
+```

@@ -1135,6 +1135,11 @@ const Actions: ActionsInterface = {
             customers,
             business_reports,
           } = JSON.parse(permissions);
+          
+          if(!products || !manage_payments || !edit_store_settings || !order || !customers || !business_reports)
+            return res.status(400).json({error: 'Bad request.'});
+
+
           BusinessStaffs.create({
             name: name,
             email: email,
