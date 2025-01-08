@@ -175,7 +175,7 @@ const Auth: Auth = {
       } else {
         console.log(otpCache.get(`otp:${email}`))
         if (otp != otpCache.get(`otp:${email}`)) {
-          return res.status(409).json({
+          return res.status(422).json({
             message: "Incorrect OTP.",
             code: "INVALID_OTP_ENTERED",
           });
@@ -322,7 +322,7 @@ const Auth: Auth = {
               .json({ success: true, token: token, user: userRef });
           } else {
             return res
-              .status(409)
+              .status(422)
               .json({ success: false, error: "Invalid credentials." });
           }
         }
@@ -467,7 +467,7 @@ const Auth: Auth = {
           sendOTP(email, full_name, otp);
           return res.status(200).json({ success: true, message: 'Proceed to enter OTP.' });
         } else {
-          return res.status(409).json({ error: "Email already exists." });
+          return res.status(422).json({ error: "Email already exists." });
         }
       }
     } catch (error) {
