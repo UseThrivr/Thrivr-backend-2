@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   export const sendForgotMail = async (resetLink: string, email: string, name: string) => {
     try {
       const mailOptions = {
-        from: "Clark <no-reply@thrivr.com>",
+        from: "Thrivr <no-reply@thrivr.com>",
         to: email,
         subject: "Reset your password",
         html: `<!DOCTYPE html>
