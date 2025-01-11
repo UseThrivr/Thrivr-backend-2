@@ -99,7 +99,7 @@ Authorization: Bearer <token>
 
 #### **3. User Login**
 
-**URL:** `/auth/login`  
+**URL:** `/api/v1/auth/login`  
 **Method:** `POST`  
 **Description:** User verification before proceeding to next stage(OTP Verifcation).
 
