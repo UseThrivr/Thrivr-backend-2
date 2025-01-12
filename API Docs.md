@@ -1360,3 +1360,172 @@ If id is provided, it returns the task with the particular id and if not it retu
   "message": "Password changed successfully."
 }
 ```
+
+### **24. get an order**
+
+**URL:** `/api/v1/order/:id?`  
+**Method:** `GET`  
+**Description:** Get an order.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Path parameters:**
+
+- `id(optional)`, if provided,  returns the order with the id, and if not returns every order under the currently logged in business.
+
+
+**Success Response:**
+
+- **Code:** 201
+- **Content:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "not paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    }
+}
+```
+
+**OR**
+```json
+{
+    "success": true,
+    "data": [{
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "not paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    },
+    {
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "not paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    }
+    ]
+}
+```
+
+**Error message**
+- **Code** 409
+- **ccontent:**
+```json
+{
+  "error": "conflict", 
+  "message": "Order already paid for."
+}
+```
+
+
+### **25. get sales**
+
+**URL:** `/api/v1/sales/:id?`  
+**Method:** `GET`  
+**Description:** Get an order.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Path parameters:**
+
+- `id(optional)`, if provided,  returns the sale with the id, and if not returns every sale under the currently logged in business.
+
+
+**Success Response:**
+
+- **Code:** 201
+- **Content:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    }
+}
+```
+
+**OR**
+```json
+{
+    "success": true,
+    "data": [{
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    },
+    {
+        "id": 1,
+        "product_id": "1",
+        "business_id": 1,
+        "customer_name": "john doe",
+        "customers_contact": "+2349087675467",
+        "sales_channel": "facebook",
+        "payment_channel": "paypal",
+        "order_date": "29-10-2024",
+        "payment_status": "paid",
+        "note": "ii have no notes here",
+        "updatedAt": "2024-12-07T09:17:26.322Z",
+        "createdAt": "2024-12-07T09:17:26.322Z"
+    }
+    ]
+}
+```

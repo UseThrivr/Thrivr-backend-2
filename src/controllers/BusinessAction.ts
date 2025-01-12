@@ -31,6 +31,7 @@ interface ActionsInterface {
   addProduct: Function;
   getProduct: Function;
   getOrder: Function;
+  getSales: Function;
   makeOrder: Function;
   fetchBusiness: Function;
   addTask: Function;
@@ -357,7 +358,7 @@ const Actions: ActionsInterface = {
           if (user.role != "business") {
             return res.status(401).json({ error: "Unauthorized access." });
           } else {
-            const business = await Business.findOne();
+            const business = await Business.findOne({where: {id: business_id}});
             if (!business) {
               return res.status(404).json({ error: "Business does not exist" });
             } else {
@@ -387,6 +388,74 @@ const Actions: ActionsInterface = {
                 attributes: ['business_name', 'location', 'role', 'description', 'email', 'phone_number'],
               }
             ]
+          }).then(async (order) => {
+            if (!order) {
+              return res.status(404).json({
+                error: "The order you requested for does not exist. 😓",
+              });
+            } else {
+              let newOrder = order.dataValues;
+              const order_products = await orderProducts.findAll({
+                where: { order_id: order.dataValues.id },
+                attributes: ['product_id']
+              });
+              const productIds = order_products.map(item => item.product_id);
+              const products = await Products.findAll({
+                where: { id: { [Op.in]: productIds } }
+              });
+
+              newOrder.products = products;
+
+              return res.status(200).json({ success: true, data: newOrder });
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Server error." });
+    }
+  },
+
+  
+  getSales: async (
+    req: Request & afterBusinessVerificationMiddleware,
+    res: Response
+  ) => {
+    try {
+      const user = req.user;
+      const business_id = user.id;
+      const { id } = req.params;
+
+      if (!user || !business_id) {
+        return res.status(401).json({ error: "Unauthorized access." });
+      } else {
+        if (!id) {
+          if (user.role != "business") {
+            return res.status(401).json({ error: "Unauthorized access." });
+          } else {
+            const business = await Business.findOne({where: {id: business_id}});
+            if (!business) {
+              return res.status(404).json({ error: "Business does not exist" });
+            } else {
+              Orders.findAll({ where: { business_id: business_id, payment_status: 'paid' },  }).then(
+                (fetchedOrders) => {
+                  if (fetchedOrders) {
+                    return res
+                      .status(200)
+                      .json({ success: true, data: fetchedOrders });
+                  } else {
+                    return res
+                      .status(500)
+                      .json({ error: "Error fetching order details." });
+                  }
+                }
+              );
+            }
+          }
+        } else {
+          await Orders.findOne({
+            where: { id: id,  payment_status: 'paid' },
           }).then(async (order) => {
             if (!order) {
               return res.status(404).json({

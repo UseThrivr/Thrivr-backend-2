@@ -120,6 +120,7 @@ const sendOTP = async (email: string, name: string, otp: number) => {
 
     transporter.sendMail(mailOptions, async (error: any, info: any) => {
       if (error) {
+        console.log(error)
         console.log("error");
       } else {
         return true;
@@ -279,14 +280,17 @@ const Auth: Auth = {
   resendOTP: async (req: Request | any, res: Response) => {
     try {
         let {email} = req.body;
+        const email_ = email;
       
-        let { email_, name } = userCache.get(`user:${email}`);;
         if(!userCache.get(`user:${email_}`)){
           return res.status(404).json({error: 'No login process found.'});
         }
         const otp = Math.floor(1000 + Math.random() * 9000);
         otpCache.set(`otp:${email_}`, otp );
 
+        let user = userCache.get(`user:${email}`);
+        const name = user['name'];
+        console.log(name);
         sendOTP(email_, name, otp);
         return res.status(200).json({sucess: true, message: 'OTP sent sucessfully.'});
     } catch (error) {
@@ -440,6 +444,7 @@ const Auth: Auth = {
 
       if (
         !full_name ||
+        !business_name ||
         !location ||
         !email ||
         !phone_number ||

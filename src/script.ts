@@ -132,6 +132,7 @@ app.get("/api/v1/business/:id?", middlewares.verifyBusiness, Actions.fetchBusine
 app.post("/api/v1/products", uploadProductLogo.array('images', 10), middlewares.verifyBusiness, Actions.addProduct);
 app.get("/api/v1/products/:id?", middlewares.authenticateToken, Actions.getProduct);
 app.get("/api/v1/order/:id?", middlewares.verifyBusiness, Actions.getOrder);
+app.get("/api/v1/sales/:id?", middlewares.verifyBusiness, Actions.getSales);
 app.post("/api/v1/order/", middlewares.verifyBusiness, Actions.makeOrder);
 app.post("/api/v1/tasks", middlewares.verifyBusiness, Actions.addTask);
 app.get("/api/v1/tasks/:id?", middlewares.verifyBusiness, Actions.getTasks);
