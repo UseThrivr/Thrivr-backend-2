@@ -159,13 +159,13 @@ Products.belongsTo(Business, {
 
 
 Products.hasMany(ProductImages, {
-  foreignKey: 'product_id', // Assuming 'store_id' is used in Settings as a reference to Business
+  foreignKey: 'product_id',
   sourceKey: 'id',
 });
 
 Orders.belongsTo(Business, {
   foreignKey: "business_id",
-  as: "orders", // Alias for eager loading
+  as: "orders",
 });
 
 
