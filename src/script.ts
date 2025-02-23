@@ -121,7 +121,7 @@ app.post("/api/v1/auth/verify-otp", Auth.verifyOTP);
 app.post("/api/v1/resend-otp", Auth.resendOTP);
 app.post("/api/v1/forgot-password", Auth.forgotPassword);
 app.post("/api/v1/reset-password", Auth.resetPassword);
-app.post("/api/v1/auth/signup/business", uploadBusinessLogo.single('logo'), Auth.businessSignup);
+app.post("/api/v1/auth/signup/business", Auth.businessSignup);
 
 
 // fetching details route
@@ -129,7 +129,7 @@ app.get("/api/v1/business/:id?", middlewares.verifyBusiness, Actions.fetchBusine
 
 
 //action routes
-app.post("/api/v1/products", uploadProductLogo.array('images', 10), middlewares.verifyBusiness, Actions.addProduct);
+app.post("/api/v1/products", middlewares.verifyBusiness, Actions.addProduct);
 app.get("/api/v1/products/:id?", middlewares.authenticateToken, Actions.getProduct);
 app.get("/api/v1/order/:id?", middlewares.verifyBusiness, Actions.getOrder);
 app.get("/api/v1/sales/:id?", middlewares.verifyBusiness, Actions.getSales);
@@ -139,8 +139,8 @@ app.get("/api/v1/tasks/:id?", middlewares.verifyBusiness, Actions.getTasks);
 app.patch("/api/v1/tasks/:id/done", middlewares.verifyBusiness, Actions.doTask);
 app.patch("/api/v1/order/:id", middlewares.verifyBusiness, Actions.updateOrder);
 
-app.patch("/api/v1/business", middlewares.verifyBusiness, uploadBusinessLogo.single('logo'), Actions.updateBusiness);
-app.patch("/api/v1/business/settings", middlewares.verifyBusiness, uploadBusinessBanner.single('logo'), Actions.updateBusinessSettings);
+app.patch("/api/v1/business", middlewares.verifyBusiness, Actions.updateBusiness);
+app.patch("/api/v1/business/settings", middlewares.verifyBusiness, Actions.updateBusinessSettings);
 app.post("/api/v1/customer", middlewares.verifyBusiness, Actions.addCustomer);
 app.post("/api/v1/group", middlewares.verifyBusiness, Actions.createGroup);
 app.post("/api/v1/staff", middlewares.verifyBusiness, Actions.addStaff);

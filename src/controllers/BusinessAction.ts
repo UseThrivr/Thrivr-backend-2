@@ -489,7 +489,7 @@ const Actions: ActionsInterface = {
     req: Request & afterBusinessVerificationMiddleware,
     res: Response
   ) => {
-    const {
+    let {
       product_ids,
       customer_name,
       customers_contact,
@@ -503,9 +503,11 @@ const Actions: ActionsInterface = {
     const business_id = user.id;
 
     if (!user || !business_id) {
-      return res.status(401).json({ eerroerror: "Unauthorized access." });
+      return res.status(401).json({ error: "Unauthorized access." });
     }
 
+    product_ids = JSON.parse(product_ids);
+    console.log(product_ids)
     if (
       !product_ids ||
       !customer_name ||
