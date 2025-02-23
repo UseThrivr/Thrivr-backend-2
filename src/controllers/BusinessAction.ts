@@ -545,6 +545,10 @@ const Actions: ActionsInterface = {
                 },
               ],
             });
+
+            if(!productData){
+              return res.status(404).json({error: 'Product does not exist.'})
+            }
         
             products.push(productData?.dataValues);
             addToWallet(business_id, parseInt(productData?.dataValues.price));
