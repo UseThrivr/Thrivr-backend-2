@@ -305,10 +305,10 @@ const Auth: Auth = {
       if (!email || !password || email.length < 1 || password.length < 1) {
         return res.status(400).json({ error: "Bad request." });
       } else {
-        let user = await User.findOne({ where: { email: email } });
+        let user = await User.findOne({ where: { email: email, deleted: false } });
 
         if(!user){
-          user = await Business.findOne({ where: { email: email } });       
+          user = await Business.findOne({ where: { email: email, deleted: false } });       
         }
 
         if (!user) {
@@ -453,8 +453,8 @@ const Auth: Auth = {
       ) {
         return res.status(400).json({ error: "Bad request." });
       } else {
-        let emailExists = await User.findOne({ where: { email: email } });
-        let businessExists = await Business.findOne({ where: { email: email } });
+        let emailExists = await User.findOne({ where: { email: email, deleted: false } });
+        let businessExists = await Business.findOne({ where: { email: email, deleted: false } });
 
         if (!emailExists && !businessExists) {
           let preUser = req.body;

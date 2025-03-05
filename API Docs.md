@@ -327,7 +327,7 @@ Authorization: Bearer <token>
   "description": "string",
   "purchase_date": "string",
   "supplier": "string",
-  "logos": "array (optional)"  //max number of images: 10
+  "image_path": "array (string)"  //max number of images: 10
 }
 ```
 
@@ -592,7 +592,7 @@ If id is provided, it returns the task with the particular id and if not it retu
   "phone_number": "string", //format: +234XXX-XXXX-XXX
   "description": "string",
   "password": "string",
-  "logo": "image file" // single file
+  "image_path": "string" // single file
 }
 ```
 
@@ -640,7 +640,7 @@ If id is provided, it returns the task with the particular id and if not it retu
   "working_days": "string",
   "opening_hours": "string",
   "currency": "string", //format: +234XXX-XXXX-XXX
-  "logo": "image file" // single file
+  "image_path": " string"
 }
 ```
 

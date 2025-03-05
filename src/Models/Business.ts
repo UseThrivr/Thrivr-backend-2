@@ -45,7 +45,6 @@ Business.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
 
     phone_number: {
@@ -73,6 +72,12 @@ Business.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+
+    deleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     },
 
     role: {

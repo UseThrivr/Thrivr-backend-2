@@ -20,7 +20,7 @@ interface addProductRequest {
   description: string;
   purchase_date: string;
   supplier: string;
-  logos?: any;
+  images?: any;
 }
 
 interface afterBusinessVerificationMiddleware {
@@ -201,12 +201,13 @@ const Actions: ActionsInterface = {
         price,
         category,
         description,
-        logos,
+        images,
         purchase_date,
         supplier,
       } = req.body as unknown as addProductRequest;
       const user = req.user;
-      const business_id = user.id;
+      const business_id = user?.id;
+  
       if (
         !user ||
         !name ||
@@ -218,57 +219,53 @@ const Actions: ActionsInterface = {
         !business_id
       ) {
         return res.status(400).json({ error: "Bad request." });
-      } else {
-        if (user.role != "business") {
-          return res.status(401).json({ error: "Unauthoried access." });
-        } else {
-          Products.create({
-            name: name,
-            price: price,
-            category: category,
-            description: description,
-            purchaseDate: purchase_date,
-            supplier: supplier,
-            business_id: user.id,
-          }).then((product) => {
-            if (product) {
-              if ((req as any).files && (req as any).files.length > 0) {
-                (req as any).files.map((file: any) => {
-                  ProductImages.create({
-                    product_id: product.id,
-                    image_path: file.location,
-                  })
-                    .then((image) => {
-                      let data = product.dataValues;
-                      data.image_path = image.dataValues.image_path;
-                      return res.status(201).json({
-                        success: true,
-                        message: "Product created successfully",
-                        data: data,
-                      });
-                    })
-                    .catch(() => {
-                      return res.status(500).json({ error: "Server error." });
-                    });
-                });
-              } else {
-                let data = product.dataValues;
-                return res.status(201).json({
-                  success: true,
-                  message: "Product created successfully",
-                  data: data,
-                });
-              }
-            } else {
-              return res.status(500).json({ error: "Server error." });
-            }
-          });
-        }
       }
+  
+      if (user.role !== "business") {
+        return res.status(401).json({ error: "Unauthorized access." });
+      }
+  
+      const product = await Products.create({
+        name,
+        price,
+        category,
+        description,
+        purchaseDate: purchase_date,
+        supplier,
+        business_id,
+      });
+  
+      if (!product) {
+        return res.status(500).json({ error: "Server error." });
+      }
+  
+      let data = product.dataValues;
+      data.images = [];
+  
+      if (images && images.length > 0) {
+        const imageRecords = await Promise.all(
+          images.map(async (file: string) => {
+            return ProductImages.create({
+              product_id: product.id,
+              image_path: file,
+            });
+          })
+        );
+  
+        data.images = imageRecords.map((img: ProductImages) => img.image_path);
+      }
+  
+      return res.status(201).json({
+        success: true,
+        message: "Product created successfully",
+        data,
+      });
     } catch (error) {
-      return res.status(500).json({ error: "Server error.", error_: "after" });
+      console.error(error);
+      return res.status(500).json({ error: "Server error." });
     }
   },
+  
 
   getProduct: async (
     req: Request & afterBusinessVerificationMiddleware,
@@ -880,6 +877,7 @@ const Actions: ActionsInterface = {
       phone_number,
       description,
       password,
+      image_path
     } = req.body;
 
     if (!user || !business_id) {
@@ -923,8 +921,8 @@ const Actions: ActionsInterface = {
     if (description) updatedFields.description = description;
     if (password) updatedFields.password = password;
 
-    if ((req as any).file) {
-      updatedFields.image_path = (req as any).file.location;
+    if (image_path) {
+      updatedFields.image_path = image_path;
     }
 
     // Ensure there is at least one field to update
@@ -975,7 +973,7 @@ const Actions: ActionsInterface = {
     const user = req.user;
     const business_id = user?.id;
 
-    const { theme, banner_image, working_days, opening_hours, currency } =
+    const { theme, working_days, opening_hours, currency, image_path } =
       req.body;
 
     if (!user || !business_id) {
@@ -987,7 +985,7 @@ const Actions: ActionsInterface = {
 
     if (
       (theme && theme.length < 1) ||
-      (banner_image && banner_image.length < 1) ||
+      (image_path && image_path.length < 1) ||
       (working_days && working_days.length < 1) ||
       (opening_hours && opening_hours.length < 1) ||
       (currency && currency.length < 1)
@@ -999,21 +997,21 @@ const Actions: ActionsInterface = {
 
     interface updateBusinessInterface {
       theme?: string;
-      banner_image?: string;
       working_days?: string;
       opening_hours?: string;
       currency?: string;
+      banner_image?:string;
     }
 
     const updatedFields: updateBusinessInterface = {};
     if (theme) updatedFields.theme = theme;
-    if (banner_image) updatedFields.banner_image = banner_image;
+    if (image_path) updatedFields.banner_image = image_path;
     if (working_days) updatedFields.working_days = working_days;
     if (opening_hours) updatedFields.opening_hours = opening_hours;
     if (currency) updatedFields.currency = currency;
 
-    if ((req as any).file) {
-      updatedFields.banner_image = (req as any).file.location;
+    if (image_path) {
+      updatedFields.banner_image = image_path;
     }
 
     // Ensure there is at least one field to update
@@ -1275,7 +1273,7 @@ const Actions: ActionsInterface = {
       return res.status(401).json({ error: "Unauthorized access." });
     }
 
-    User.update({ deleted: true }, { where: { id: business_id } })
+    Business.update({ deleted: true }, { where: { id: business_id } })
       .then(() => {
         return res
           .status(204)
