@@ -1529,3 +1529,47 @@ If id is provided, it returns the task with the particular id and if not it retu
     ]
 }
 ```
+
+
+### **26. Get Customer**
+
+**URL:** `/api/v1/customer`  
+**Method:** `GET`  
+**Description:** Get a customer from the business.  
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Middleware:**
+
+- `verifyBusiness`
+
+**Path parameters:**
+
+- `id(optional)`, if provided,  returns the customer with the id, and if not returns every customer under the currently logged in business.
+
+**Query parameters:**
+
+- `group(optional)`, if provided,  returns the customer with group name. Should only be provided if id is not provided.
+
+**Success Response:**
+
+- **Code:** 200
+- **Content:**
+
+```json
+{
+    "sucess": true,
+    "data": {
+        "group": "none",
+        "id": 1,
+        "name": "John doe",
+        "email": "abc123@gmail.com",
+        "phone_number": "+234908765908",
+        "instagram": "instagram.com/john_doe",  
+        "business_id": 1,
+        "updatedAt": "2024-12-01T15:26:47.041Z",
+        "createdAt": "2024-12-01T15:26:47.041Z"
+    }
+}
+```

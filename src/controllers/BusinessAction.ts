@@ -1118,7 +1118,7 @@ const Actions: ActionsInterface = {
     if (!id) {
       if (group) {
         Customer.findAll({
-          where: { user_id: business_id, group: group },
+          where: { business_id: business_id, group: group },
         }).then((customer) => {
           if (customer) {
             return res.status(200).json({ success: true, data: customer });
@@ -1127,7 +1127,7 @@ const Actions: ActionsInterface = {
           }
         });
       } else {
-        Customer.findAll({ where: { user_id: business_id } }).then(
+        Customer.findAll({ where: { business_id: business_id } }).then(
           (customer) => {
             if (customer) {
               return res.status(200).json({ success: true, data: customer });
@@ -1145,8 +1145,8 @@ const Actions: ActionsInterface = {
             .json({ success: true, data: customer.dataValues });
         } else {
           return res.status(404).json({
-            error: "task not found.",
-            message: "Task does not exist.",
+            error: "Customer not found.",
+            message: "Customer does not exist.",
           });
         }
       });
