@@ -1559,17 +1559,19 @@ If id is provided, it returns the task with the particular id and if not it retu
 
 ```json
 {
-    "sucess": true,
-    "data": {
-        "group": "none",
-        "id": 1,
-        "name": "John doe",
-        "email": "abc123@gmail.com",
-        "phone_number": "+234908765908",
-        "instagram": "instagram.com/john_doe",  
-        "business_id": 1,
-        "updatedAt": "2024-12-01T15:26:47.041Z",
-        "createdAt": "2024-12-01T15:26:47.041Z"
-    }
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "name": "Ashiru sheriff",
+            "email": "lanre2967@gmail.com",
+            "phone_number": "09164187495",
+            "group": "best customers",
+            "instagram": "",
+            "business_id": 1,
+            "createdAt": "2025-03-16T16:46:07.000Z",
+            "updatedAt": "2025-03-16T16:46:07.000Z"
+        }
+    ]
 }
 ```
