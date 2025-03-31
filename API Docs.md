@@ -76,7 +76,8 @@ Authorization: Bearer <token>
   "phone_number": "string", //format: +234XXX-XXXX-XXX
   "description": "string",
   "password": "string",
-  "logo": "image file" // single file
+  "image_path": "image file", // single file
+  "oauth": "boolean"   //set to true if user signed up with any oauth platform
 }
 ```
 
@@ -108,7 +109,8 @@ Authorization: Bearer <token>
 ```json
 {
   "email": "string",
-  "password": "string"
+  "password": "string",
+  "oauth": "boolean"   //set to true if user signed up with any oauth platform
 }
 ```
 

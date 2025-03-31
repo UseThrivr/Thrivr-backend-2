@@ -300,12 +300,21 @@ const Auth: Auth = {
 
   login: async (req: Request | any, res: Response) => {
     try {
-      let { email, password } = req.body;
+      let { email, password, oauth } = req.body;
 
-      if (!email || !password || email.length < 1 || password.length < 1) {
+      if (!email || !password) {
         return res.status(400).json({ error: "Bad request." });
-      } else {
-        let user = await User.findOne({ where: { email: email, deleted: false } });
+      }
+
+      if(oauth != true || oauth != false){
+        return res.status(400).json({error: 'Bad request.'});
+      }
+
+      if(oauth == true){
+        password = '';
+      }
+
+      let user = await User.findOne({ where: { email: email, deleted: false } });
 
         if(!user){
           user = await Business.findOne({ where: { email: email, deleted: false } });       
@@ -313,24 +322,24 @@ const Auth: Auth = {
 
         if (!user) {
           return res.status(404).json({ error: "Invalid credentials." });
+        } 
+
+        const match = await bcrypt.compare(password, user.password);
+
+        if (match || oauth == true) {
+          const { password, createdAt, updatedAt, ...userRef } =
+            user.dataValues;
+          const token = jwt.sign(userRef, process.env.SECRET_KEY, {
+            expiresIn: "24h",
+          });
+          return res
+            .status(200)
+            .json({ success: true, token: token, user: userRef });
         } else {
-          const match = await bcrypt.compare(password, user.password);
-          if (match) {
-            const { password, createdAt, updatedAt, ...userRef } =
-              user.dataValues;
-            const token = jwt.sign(userRef, process.env.SECRET_KEY, {
-              expiresIn: "24h",
-            });
-            return res
-              .status(200)
-              .json({ success: true, token: token, user: userRef });
-          } else {
-            return res
-              .status(422)
-              .json({ success: false, error: "Invalid credentials." });
-          }
+          return res
+            .status(422)
+            .json({ success: false, error: "Invalid credentials." });
         }
-      }
     } catch (error) {
       return res.status(500).json({ error: "Server error." });
     }
@@ -432,7 +441,7 @@ const Auth: Auth = {
 
   businessSignup: async (req: Request | any, res: Response) => {
     try {
-      const {
+      let {
         full_name,
         business_name,
         location,
@@ -440,6 +449,8 @@ const Auth: Auth = {
         phone_number,
         description,
         password,
+        oauth,
+        image_path
       } = req.body;
 
       if (
@@ -448,23 +459,35 @@ const Auth: Auth = {
         !location ||
         !email ||
         !phone_number ||
-        !description ||
-        !password 
+        !description
       ) {
         return res.status(400).json({ error: "Bad request." });
-      } else {
-        let emailExists = await User.findOne({ where: { email: email, deleted: false } });
+      } 
+
+      if(oauth != true && oauth != false){
+        return res.status(400).json({error: 'Bad request.'});
+      }
+
+      if(oauth == false && !password){
+        return res.status(400).json({error: "Bad request."});
+      }
+
+      if(oauth == true){
+        password = ''
+      }
+
+      let emailExists = await User.findOne({ where: { email: email, deleted: false } });
         let businessExists = await Business.findOne({ where: { email: email, deleted: false } });
 
         if (!emailExists && !businessExists) {
           let preUser = req.body;
           preUser.role = 'business';
-          if ((req as any).file) {
-            preUser.image_path = (req as any).file.location; 
+          if(oauth == true){
+            preUser.is_oauth = true
           }
-          else{
-            preUser.image_path = '';
-          }
+
+
+          preUser.image_path = image_path;
           userCache.set(`user:${email}`, preUser );
 
           const otp = Math.floor(1000 + Math.random() * 9000);
@@ -474,7 +497,6 @@ const Auth: Auth = {
         } else {
           return res.status(422).json({ error: "Email already exists." });
         }
-      }
     } catch (error) {
       return res.status(500).json({ error: "Error." });
     }

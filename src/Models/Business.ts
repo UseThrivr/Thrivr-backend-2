@@ -1,13 +1,9 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 const sequelize = require("./../setup/Sequelize");
-import Settings from "./storeSettings"; // Assuming Settings is in the same directory
-import Group from "./Group";
-import Products from "./Product";
-import Orders from "./Order";
 
 class Business extends Model {
   public id!: number;
-  public full_name!: string; // Ensure you are consistent with 'full_name' here
+  public full_name!: string;
   public business_name!: string;
   public location!: string;
   public email!: string;
@@ -16,9 +12,10 @@ class Business extends Model {
   public password!: string;
   public image_path!: string;
   public role!: string;
+  public is_oauth!: boolean;
 }
 
-// Define the Business table
+
 Business.init(
   {
     id: {
@@ -85,6 +82,12 @@ Business.init(
       defaultValue: "business",
       allowNull: false,
     },
+
+    is_oauth: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    }
   },
   {
     sequelize,
