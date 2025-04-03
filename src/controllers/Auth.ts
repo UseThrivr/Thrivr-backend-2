@@ -306,7 +306,7 @@ const Auth: Auth = {
         return res.status(400).json({ error: "Bad request." });
       }
 
-      if(oauth != true || oauth != false){
+      if(oauth != true && oauth != false){
         return res.status(400).json({error: 'Bad request.'});
       }
 
