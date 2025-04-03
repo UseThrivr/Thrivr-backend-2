@@ -302,11 +302,15 @@ const Auth: Auth = {
     try {
       let { email, password, oauth } = req.body;
 
-      if (!email || !password) {
+      if (!email) {
         return res.status(400).json({ error: "Bad request." });
       }
 
       if(oauth != true && oauth != false){
+        return res.status(400).json({error: 'Bad request.'});
+      }
+
+      if(oauth == false && !password){
         return res.status(400).json({error: 'Bad request.'});
       }
 
